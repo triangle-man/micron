@@ -28,7 +28,25 @@ some kind of principled optimisation because that takes exponential time. (Eg,
 there's apparently something called k-CFA for various values of k.) But
 ... maybe that's okay, for small bits of code?
 
+### Next steps
 
+1. Write, in Racket, a parser for a very tiny lambda-calculus:
+
+   Application: (f x y ...)
+   Single-barelled let: (let (x exp) (exp ...))
+   letrec (?)
+   set!
+   Values: (), #t, #f, integers, (lambda (x y ...) (exp ...))
+           also pairs
+   If: (if test exp-if-true exp-if-false)
+   Primitive functions: +, -, *, / (int), mod, =, >, <, not
+   cons, car, cdr,
+   null?, vnumber?, procedure?, pair?, boolean?
+   
+ 2. Write, in Racket, a program to convert this to CPS-style
+ 
+ 3. Write (in Racket? or C?) a CESK machine for this language.
+ 
 ### Exisiting Schemes
 
 Chibi scheme is R7RS compliant and targets embedded devices with a byte-compiler
