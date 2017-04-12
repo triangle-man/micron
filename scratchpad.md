@@ -52,11 +52,13 @@ One can imagine two mindsets. Consider the program for L3.
 
 4. Satisfying:
 
+```haskell
     pure (ap id) v = v
     ap (pure f) (pure x)  = pure (f x)
     ap u (pure y) = ap (pure ($ y) u)    where ($ x) f = f x 
     ap (ap u v) w = ap u (ap v w)
-    
+```
+
 and A is a functor under 
 
     fmap f x = ap (pure f) x
@@ -75,17 +77,22 @@ and A is a functor under
    
 4. Satisfying:
 
-   bind (return x) f = f x
-   bind m return = m
-   bind (bind m f) g = bind m ( \x -> (bind (f x) g) )
-
+```haskell
+bind (return x) f = f x
+bind m return = m
+bind (bind m f) g = bind m ( \\x -> (bind (f x) g) )
+```
  
  Alternatively, define in terms of return, join, and fmap
  
+ ```haskell
    join :: M (M t) -> M t
    join n = bind n id
    
-   fmap f m = bind m (return . f)     where f . g = \x -> f (g x)
-   
-   
-   
+   fmap f m = bind m (return . f) 
+```
+where
+
+```haskell
+f . g = \\x -> f (g x)
+``` 
