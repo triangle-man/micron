@@ -20,8 +20,40 @@ transitioned into L1 an even or odd number of times. B1 does nothing.
 In any state, pushing B2 displays "*" until B2 is released.
 
 
+## Combining regexps:
 
-One can imagine two mindsets. Consider the program for L3. 
+A | B
+AB
+A*
+
+
+## Combining FSAs
+
+
+
+M1, M2 take a sequence of symbol and emits a sequence of symbols.
+
+M1 :: WorldState1 Event1 -> WorldState1 Effect1
+
+So ... could do
+
+M1 x M2 :: (WorldState1 WorldState2) (Event1 | Event2) -> (WS1 WS2) (Effect1 | Effect2) 
+
+(ie, decide which of M1 or M2 to use, based on the type of the Event; then
+update the WS appropriately and return whichever event it is).
+
+M1 :: WS1 Event -> (WS1 | WS2) Effect1
+
+Could do M1 then M2: ie, do M1 until it emites a WS2, then switch to
+M2. (Although this seems to be done automatically by pattern matching on the
+subtype of WS).
+
+
+What about "and"? ie, do M1 and M2 (producing both effects?) but only when they
+accept the same input? (But all automata "process" all input strings). So this
+is more like "do both at the same time". 
+
+
 
 
 
