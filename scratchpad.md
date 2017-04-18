@@ -1,6 +1,45 @@
 # Scratchpad for random ideas
 
-What does a FSA-based game look like?
+A *transitor* is a function that:
+
+    - accepts a value taken from a finite set (possibly empty) of possible inputs;
+    - emits one of a finite set of outputs;
+    - returns a transitor.
+    
+Fix, once and for all, a finite set of inputs, I, and a finite set of outputs, O.
+
+eg, `stop` is the transitor that accepts no inputs.
+
+`forever` accepts any inputs, emits no output, and returns `forever`.
+
+`const o` accepts any input, emits o, and returns `stop`.
+
+`on i emit o` accepts i, emits o, and returns `stop`.
+
+Combinators:
+
+
+    
+
+
+
+
+
+## Proofs ...
+
+Things we might wish to ask the compiler:
+
+* From every state, is there a possible route to "Win" or "Lose"?
+* From every state, is there a possible route to "Win"?
+
+Does every state necessarily consume every input (even if the output is empty and
+the transition returns to the same state)?
+
+
+
+
+
+## What does a FSA-based game look like?
 
 Example:
 
@@ -19,6 +58,21 @@ transitioned into L1 an even or odd number of times. B1 does nothing.
 
 In any state, pushing B2 displays "*" until B2 is released.
 
+## Imaginary language version of this game
+
+wait-rotator :: WS ev -> WS ef
+
+data Count = One | Two | Three | Four
+here type WS = Count
+
+data ev = Tick
+
+data Display = "-" | "\" | "|" | "/"
+type ef = Display
+
+
+
+
 
 ## Combining regexps:
 
@@ -35,7 +89,7 @@ M1, M2 take a sequence of symbol and emits a sequence of symbols.
 
 M1 :: WorldState1 Event1 -> WorldState1 Effect1
 
-So ... could do
+So ... could do --
 
 M1 x M2 :: (WorldState1 WorldState2) (Event1 | Event2) -> (WS1 WS2) (Effect1 | Effect2) 
 
