@@ -1,16 +1,42 @@
-Hi Tomas,
-
-I'm more and more liking your idea of writing a little language that generates a
-finite state machine for the micro:bit, and I'm really liking this idea of doing
-it in a functional-reactive-programming style.
-
-(By the way, after reading around a bit, I believe that the "equivalent of the
-lambda calculus for finite state machines" is something called a "process
-calculus"; and I've also decided to stop reading around a bit.)
-
-Also -- I can't help thinking that this is all about co-effects ... 
 
 Anyway, here's where I've got to so far. 
+
+Suppose `State`, `In`, and `Out` are types, each of which is inhabited by only
+finitely many values. 
+
+An *abstract machine* is a function, 
+```
+m :: (1 + State) x In -> (1 + State) x Out
+```
+Here, `1 + T` is the coproduct of the "Unit" type with T, that is
+```
+1 + T = Nothing | Just T
+```
+
+
+
+distinguished value $S_0$, and a distinguished set of values $S_f$, where, for
+any practical machine:
+
+    - $S$, $S'$, and $S_0$ are values of type `State`, of which there are only
+      finitely many values;
+      
+    - $x$ is a symbol in some finite alphabet, with the addition of a special
+      symbols `start` and `end`;
+      
+    - $ys$ is a finite list of symbols from some other finite alphabet, possibly
+      empty, and possibly ending with the special symbol `end`.
+      
+Practical machines can be used to map finite sequences to finite sequences
+too. Let $u$ be some sequence $(a, b, c, \dotsc, d)$. To do so, we compute:
+
+    (S_1, y1) = m(S_0, start);
+    (S_2, y2) = m(S_1, a);
+    (S_3, y3) = m(S_2, b); 
+    ...
+    (S_n, yn) = m(S_n-1, `end`)
+
+and return the catenation y1 y2 y3 ... yn.
 
 A *theoretical machine* maps finite sequences of symbols (from some alphabet) to
 finite sequences of symbols (from some possibily different alphabet), subject to
@@ -43,32 +69,9 @@ applied $\mu$ to a shorter subsequence first. Or, you only need to know the
 result of $\mu$ on sequences no longer than $N$.
 
 
-A *practical machine* is a function, $m : (S, x) \mapsto (S', ys)$, a
-distinguished value $S_0$, and a distinguished set of values $S_f$, where, for
-any practical machine:
-
-    - $S$, $S'$, and $S_0$ are values of type `State`, of which there are only
-      finitely many values;
-      
-    - $x$ is a symbol in some finite alphabet, with the addition of a special
-      symbols `start` and `end`;
-      
-    - $ys$ is a finite list of symbols from some other finite alphabet, possibly
-      empty, and possibly ending with the special symbol `end`.
-      
-Practical machines can be used to map finite sequences to finite sequences
-too. Let $u$ be some sequence $(a, b, c, \dotsc, d)$. To do so, we compute:
-
-    (S_1, y1) = m(S_0, start);
-    (S_2, y2) = m(S_1, a);
-    (S_3, y3) = m(S_2, b); 
-    ...
-    (S_n, yn) = m(S_n-1, `end`)
-
-and return the catenation y1 y2 y3 ... yn.
 
 
-An *abstract machine* is a directed graph (S, e) with nodes S and labelled edges
+A *practical machine* is a directed graph (S, e) with nodes S and labelled edges
 e, and a distinguished node $S_0$, such that:
 
   1. Each edge is labelled with a pair (x, ys), where x is a symbol from some
