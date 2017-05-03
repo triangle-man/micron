@@ -87,7 +87,7 @@ empty sequence.
 
 Then the conditions that a theoretical machine, $\mu$, must satisfy are:
 
-1. (Strictness) $\mu(\varepsilon) = \varepsilon$. 
+1. (Strictness) $\mu(\varepsilon) = \varepsilon$;
 
 2. (Determinism) $u\leq v$ implies $\mu(u) \leq \mu(v)$;
    
@@ -103,7 +103,8 @@ a certain point is the same as it would be if you applied $\mu$ to a shorter
 subsequence first. Or: you only need to know the result of $\mu$ on sequences no
 longer than $N$.
 
-
+FIXME: Here the definition says that the domain of $\mu$ is all finite
+sequences. 
 
 
 
