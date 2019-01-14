@@ -1,6 +1,7 @@
 #+title: The simplest logic ever
 #+startup: showall
 #+options: toc:nil
+#+latex_header: \usepackage{ebproof}
 
 * The non-implicational fragment of intuitionist propositional logic
 
@@ -17,52 +18,114 @@ $\psi$, \$dotsc$ are propositions. For any two propositions, $\phi$ and $\psi$,
 the formulae $(\phi\wedge\psi)$ and $(\phi\vee\psi)$ are propositions.
 
 A /judgement/ is a pair of propositions, written $\phi\vdash\psi$. The
-interpretation is that $\psi$ ‘follows from’ $\phi$.
+interpretation is that $\psi$ ‘follows from’ $\phi$. Note that this is not what
+is usually done (in logic). What is usually done is that the thing on the left
+of the judgement turnstile is a multiset of premises (and sometimes the thing on
+the right is also a multiset). But I am trying to understand how all this is
+related to categories; and thus I am looking for a morphism. I don't feel too
+bad about this adjustment to nomenclature since it appears that everyone in this
+field is happy to reinvent it.
 
-The rules of judgement say which judgements exist. The rules of judgement are as
+While we're on the topic, note that assumptions and premises in this version are
+always judgements. In classical logic, we might find a premise, $A$, to be read
+‘assuming $A$, ...’, but in intuitionist logic we (must) only write
+$\gamma\vdash A$, to be read ‘assuming we have a “proof of $A$ from $\gamma$,
+...”’.  
+
+The rules of judgement say how to construct judgements. Judgements are
+construced according to proofs. The rules of proofs are as
 follows:
 
 ** Axiomatic judgement
 
 For any proposition $\phi$,
 \begin{equation}
-\phi \vdash \phi.
+\begin{prooftree}
+\infer0[id]{\phi \vdash \phi}
+\end{prooftree}.
 \end{equation}
+
+The idea is that the thing above the horiztonal line are the premises of the
+proof; the thing below line is the concluded judgment. The text ‘id’ is a label
+for this proof form.
 
 ** Top and bottom
 
 For any proposition, $\phi$,
 \begin{equation}
-\bot \vdash \phi,
-\end{equation}
-and
-\begin{equation}
-\phi \vdash \top.
-\end{equation}
+  \begin{prooftree}
+    \infer0[$\bot$]{\bot \vdash \phi},
+  \end{prooftree}
+  \qquad\text{and}\qquad
+ \begin{prooftree}
+    \infer0[$\top$]{\phi \vdash \top},
+  \end{prooftree}
+\end{equation}  
+
 A /theorem/ is a formula $\tau$ for which we have shown $\top\vdash\tau$,
 incidentally.
 
-** Conjuctive and disjunctive judgements
 
-For any two propositions, $\phi$ and $\psi$,
-\begin{equation}
-\phi\wedge\psi \vdash \phi\qquad\text{and}\qquad
-\phi\wedge\psi \vdash \psi.
-\end{equation}
-(This rule is sometimes called ‘conjunction elimination.’) 
+** Conjunctive proofs
 
-For any two propositions, $\phi$ and $\psi$,
-\begin{equation}
-\phi \vdash \phi\vee\psi \qquad\text{and}\qquad
-\phi \vdash \phi\vee\psi.
-\end{equation}
-(This rule is sometimes called ‘disjunction introduction.’)
-
-** Combinations
-
-Some rules say how to combine judgements to get new judgements. We write the
-judgements we have on top of a horizontal rule; and the judgements we obtain on
-the bottom. The rules are as follows.
+For any propositions $P$, $\phi$, and $\psi$, and judgement $P \vdash \phi\wedge\psi$,
 
 \begin{equation}
+  \begin{prooftree}
+    \hypo{P \vdash \phi\wedge\psi}
+    \infer1[$\wedge_\text{E1}$]{P \vdash \phi}
+  \end{prooftree}
+  \qquad\text{and}\qquad
+  \begin{prooftree}
+    \hypo{P \vdash \phi\wedge\psi}
+    \infer1[$\wedge_\text{E2}$]{P \vdash \psi}
+  \end{prooftree}.
 \end{equation}
+
+These two rules are sometimes called ‘conjunction elimination,’ and the labels are read
+as such.
+
+For any propositions $P$, $\phi$, and $\psi$, and judgements $P \vdash \phi$ and
+$P \vdash \psi$,
+
+\begin{equation}
+  \begin{prooftree}
+    \hypo{P \vdash \phi}
+    \hypo{P \vdash \phi}
+    \infer2[$\wedge_\text{I}$]{P \vdash \phi\wedge\psi}
+  \end{prooftree}.
+ \end{equation}
+
+This rule is known as ‘disjunction introduction.’
+
+** Disjunctive proofs
+
+For any propositions $P$, $\phi$, and $\psi$, and judgement 
+$\phi\vee\psi \vdash P$,
+
+\begin{equation}
+  \begin{prooftree}
+    \hypo{\phi\vee\psi \vdash P}
+    \infer1[$\vee_\text{E1}$]{\phi \vdash P}
+  \end{prooftree}
+  \qquad\text{and}\qquad
+  \begin{prooftree}
+    \hypo{\phi\vee\psi \vdash P}
+    \infer1[$\vee_\text{E2}$]{\psi \vdash P}.
+  \end{prooftree}.
+\end{equation}
+
+This rule is called ‘disjunction elimination.’
+
+For any propositions $P$, $\phi$, and $\psi$, and judgements $\phi \vdash P$ and
+$\psi \vdash P$,
+
+\begin{equation}
+  \begin{prooftree}
+    \hypo{\phi \vdash P}
+    \hypo{\psi \vdash P}
+    \infer2[$\vee_\text{I}$]{\phi\wedge\psi \vdash P}
+  \end{prooftree}.
+ \end{equation}
+This rule is called ‘disjunction introduction.’
+
