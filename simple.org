@@ -32,9 +32,24 @@ always judgements. In classical logic, we might find a premise, $A$, to be read
 $\gamma\vdash A$, to be read ‘assuming we have a “proof of $A$ from $\gamma$,
 ...”’.  
 
-The rules of judgement say how to construct judgements. Judgements are
-construced according to proofs. The rules of proofs are as
-follows:
+
+* Proofs
+
+Judgements are construced according to proofs. A proof is a connected series of
+judgements, each following from the previous according to certain rules. A rule
+is written
+\begin{equation}
+  \begin{prooftree}
+    \hypo{x}
+    \hypo{y}
+    \hypo{\dotsc}
+    \infer3[label]{\phi\vdash\psi}
+  \end{prooftree},
+\end{equation}
+where the $x$, $y$, $\dotsc$, above the horizontal line are the premises of the proof, and
+the judgment below the line is the conclusion.
+
+The rules of proofs are as follows.
 
 ** Axiomatic judgement
 
@@ -49,27 +64,10 @@ The idea is that the thing above the horiztonal line are the premises of the
 proof; the thing below line is the concluded judgment. The text ‘id’ is a label
 for this proof form.
 
-** Top and bottom
-
-For any proposition, $\phi$,
-\begin{equation}
-  \begin{prooftree}
-    \infer0[$\bot$]{\bot \vdash \phi},
-  \end{prooftree}
-  \qquad\text{and}\qquad
- \begin{prooftree}
-    \infer0[$\top$]{\phi \vdash \top},
-  \end{prooftree}
-\end{equation}  
-
-A /theorem/ is a formula $\tau$ for which we have shown $\top\vdash\tau$,
-incidentally.
-
 
 ** Conjunctive proofs
 
 For any propositions $P$, $\phi$, and $\psi$, and judgement $P \vdash \phi\wedge\psi$,
-
 \begin{equation}
   \begin{prooftree}
     \hypo{P \vdash \phi\wedge\psi}
@@ -81,51 +79,94 @@ For any propositions $P$, $\phi$, and $\psi$, and judgement $P \vdash \phi\wedge
     \infer1[$\wedge_\text{E2}$]{P \vdash \psi}
   \end{prooftree}.
 \end{equation}
-
 These two rules are sometimes called ‘conjunction elimination,’ and the labels are read
 as such.
 
 For any propositions $P$, $\phi$, and $\psi$, and judgements $P \vdash \phi$ and
 $P \vdash \psi$,
-
 \begin{equation}
   \begin{prooftree}
     \hypo{P \vdash \phi}
-    \hypo{P \vdash \phi}
+    \hypo{P \vdash \psi}
     \infer2[$\wedge_\text{I}$]{P \vdash \phi\wedge\psi}
   \end{prooftree}.
  \end{equation}
-
-This rule is known as ‘disjunction introduction.’
+This rule is known as ‘conjuction introduction.’
 
 ** Disjunctive proofs
 
 For any propositions $P$, $\phi$, and $\psi$, and judgement 
 $\phi\vee\psi \vdash P$,
-
 \begin{equation}
   \begin{prooftree}
-    \hypo{\phi\vee\psi \vdash P}
-    \infer1[$\vee_\text{E1}$]{\phi \vdash P}
+    \hypo{\phi \vdash Q}
+    \hypo{\psi \vdash Q}
+    \hypo{P \vdash \phi\vee\psi}
+    \infer3[$\vee_\text{E}$]{P\vdash Q}
+  \end{prooftree}.
+ \end{equation}
+This rule is called ‘disjunction elimination.’
+
+For any propositions $P$, $\phi$, and $\psi$, 
+\begin{equation}
+  \begin{prooftree}
+    \hypo{P \vdash \phi}
+    \infer1[$\vee_\text{I1}$]{P \vdash \phi\vee\psi}
   \end{prooftree}
   \qquad\text{and}\qquad
   \begin{prooftree}
-    \hypo{\phi\vee\psi \vdash P}
-    \infer1[$\vee_\text{E2}$]{\psi \vdash P}.
+    \hypo{P \vdash \psi}.
+    \infer1[$\vee_\text{I2}$]{P \vdash \phi\vee\psi}
   \end{prooftree}.
 \end{equation}
+This rule is called ‘disjunction introduction.’
 
-This rule is called ‘disjunction elimination.’
+** Top and bottom
 
-For any propositions $P$, $\phi$, and $\psi$, and judgements $\phi \vdash P$ and
-$\psi \vdash P$,
-
+For any propositions, $\phi$ and $\psi$,
 \begin{equation}
   \begin{prooftree}
-    \hypo{\phi \vdash P}
-    \hypo{\psi \vdash P}
-    \infer2[$\vee_\text{I}$]{\phi\wedge\psi \vdash P}
-  \end{prooftree}.
- \end{equation}
-This rule is called ‘disjunction introduction.’
+    \hypo{\phi \vdash \bot}
+    \infer1[$\bot$]{\phi \vdash \psi},
+  \end{prooftree}
+  \qquad\text{and}\qquad
+  \begin{prooftree}
+    \hypo{\top \vdash \phi}
+    \infer1[$\top$]{\psi \vdash \phi},
+  \end{prooftree}
+\end{equation}  
+Note that these have an arbitrary consequent on the bottom. A
+/theorem/ is a formula $\tau$ for which we have shown $\top\vdash\tau$,
+incidentally. 
+
+** Comments
+
+Note that the rules for conjunction and disjunction introduce or eliminate their
+respective symbols on the right-hand side of judgments. The corresponding
+‘left-side rules’ follow from these, however.
+From conjunction elimination of the right to conjuction introduction on the left:
+\begin{equation*}
+  \begin{prooftree}
+    \infer0[id]{\phi\wedge\psi \vdash \phi\wedge\psi}
+    \infer1[$\wedge_\text{E}$]{\phi\wedge\psi \vdash \phi}
+  \end{prooftree}
+  \quad\implies\quad
+  \begin{prooftree}
+    \infer0{\phi\wedge\psi \vdash \phi}
+  \end{prooftree}
+\end{equation*}
+
+From conjunction introduction on the right to conjuction elimination on the
+left:
+\begin{equation*}
+  \begin{prooftree}
+    \hypo{
+    \infer0[id]{\phi\wedge\psi \vdash \phi\wedge\psi}
+    \infer1[$\wedge_\text{E}$]{\phi\wedge\psi \vdash \phi}
+  \end{prooftree}
+  \quad\implies\quad
+  \begin{prooftree}
+    \infer0{\phi \vdash P}
+  \end{prooftree}
+\end{equation*}
 
