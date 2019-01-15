@@ -43,7 +43,7 @@ is written
     \hypo{x}
     \hypo{y}
     \hypo{\dotsc}
-    \infer3[label]{\phi\vdash\psi}
+    \infer3{\phi\vdash\psi}
   \end{prooftree},
 \end{equation}
 where the $x$, $y$, $\dotsc$, above the horizontal line are the premises of the proof, and
@@ -60,23 +60,20 @@ For any proposition $\phi$,
 \end{prooftree}.
 \end{equation}
 
-The idea is that the thing above the horiztonal line are the premises of the
-proof; the thing below line is the concluded judgment. The text ‘id’ is a label
-for this proof form.
-
+The label ‘id’ is a convenient name for this proof form.
 
 ** Conjunctive proofs
 
 For any propositions $P$, $\phi$, and $\psi$, and judgement $P \vdash \phi\wedge\psi$,
 \begin{equation}
   \begin{prooftree}
-    \hypo{P \vdash \phi\wedge\psi}
-    \infer1[$\wedge_\text{E1}$]{P \vdash \phi}
+    \hypo{P &\vdash \phi\wedge\psi}
+    \infer1[$\wedge_\text{E1}$]{P &\vdash \phi}
   \end{prooftree}
   \qquad\text{and}\qquad
   \begin{prooftree}
-    \hypo{P \vdash \phi\wedge\psi}
-    \infer1[$\wedge_\text{E2}$]{P \vdash \psi}
+    \hypo{P &\vdash \phi\wedge\psi}
+    \infer1[$\wedge_\text{E2}$]{P &\vdash \psi}
   \end{prooftree}.
 \end{equation}
 These two rules are sometimes called ‘conjunction elimination,’ and the labels are read
@@ -95,8 +92,7 @@ This rule is known as ‘conjuction introduction.’
 
 ** Disjunctive proofs
 
-For any propositions $P$, $\phi$, and $\psi$, and judgement 
-$\phi\vee\psi \vdash P$,
+For any propositions $P$, $Q$, $\phi$, and $\psi$, and judgements $\phi \vdash Q$, $\psi \vdash Q$, and $P \vdash \phi\vee\psi$,
 \begin{equation}
   \begin{prooftree}
     \hypo{\phi \vdash Q}
@@ -110,13 +106,13 @@ This rule is called ‘disjunction elimination.’
 For any propositions $P$, $\phi$, and $\psi$, 
 \begin{equation}
   \begin{prooftree}
-    \hypo{P \vdash \phi}
-    \infer1[$\vee_\text{I1}$]{P \vdash \phi\vee\psi}
+    \hypo{P &\vdash \phi}
+    \infer1[$\vee_\text{I1}$]{P &\vdash \phi\vee\psi}
   \end{prooftree}
   \qquad\text{and}\qquad
   \begin{prooftree}
-    \hypo{P \vdash \psi}.
-    \infer1[$\vee_\text{I2}$]{P \vdash \phi\vee\psi}
+    \hypo{P &\vdash \psi}.
+    \infer1[$\vee_\text{I2}$]{P &\vdash \phi\vee\psi}
   \end{prooftree}.
 \end{equation}
 This rule is called ‘disjunction introduction.’
@@ -141,32 +137,36 @@ incidentally.
 
 ** Comments
 
-Note that the rules for conjunction and disjunction introduce or eliminate their
-respective symbols on the right-hand side of judgments. The corresponding
-‘left-side rules’ follow from these, however.
-From conjunction elimination of the right to conjuction introduction on the left:
-\begin{equation*}
-  \begin{prooftree}
-    \infer0[id]{\phi\wedge\psi \vdash \phi\wedge\psi}
-    \infer1[$\wedge_\text{E}$]{\phi\wedge\psi \vdash \phi}
-  \end{prooftree}
-  \quad\implies\quad
-  \begin{prooftree}
-    \infer0{\phi\wedge\psi \vdash \phi}
-  \end{prooftree}
-\end{equation*}
+ Note that the rules for conjunction and disjunction introduce or eliminate their
+ respective symbols on the right-hand side of judgments. The corresponding
+ ‘left-side rules’ follow from these, however.
 
-From conjunction introduction on the right to conjuction elimination on the
-left:
-\begin{equation*}
-  \begin{prooftree}
-    \hypo{
-    \infer0[id]{\phi\wedge\psi \vdash \phi\wedge\psi}
-    \infer1[$\wedge_\text{E}$]{\phi\wedge\psi \vdash \phi}
-  \end{prooftree}
-  \quad\implies\quad
-  \begin{prooftree}
-    \infer0{\phi \vdash P}
-  \end{prooftree}
-\end{equation*}
+ From conjunction elimination of the right to conjuction introduction on the left:
+ \begin{equation*}
+   \begin{prooftree}
+     \infer0[id]{\phi\wedge\psi &\vdash \phi\wedge\psi}
+     \infer1[$\wedge_\text{E1}$]{\phi\wedge\psi &\vdash \phi}
+   \end{prooftree}
+   \quad\implies\quad
+   \begin{prooftree}
+     \infer0[$\wedge_{\text{II1}}$]{\phi\wedge\psi \vdash \phi}
+   \end{prooftree}
+ \end{equation*}
+ (and /mutatis mutandis/ for $\wedge_{\text{E2}}$).
+
+ From conjunction introduction on the right to conjuction elimination on the
+ left:
+ \begin{equation*}
+   \begin{prooftree}
+     \infer0[id]{\phi\wedge\psi \vdash \phi\wedge\psi}
+     \infer1[$\wedge_\text{E}$]{\phi\wedge\psi \vdash \phi}
+   \end{prooftree}
+   \quad\implies\quad
+   \begin{prooftree}
+     \hypo{P \vdash \phi}
+     \hypo{P \vdash \psi}
+     \hypo{\phi\wedge\psi \vdash Q}
+     \infer3[$\wedge_\text{EE}$]{P \vdash Q}
+   \end{prooftree}
+ \end{equation*}
 
