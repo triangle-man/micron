@@ -133,7 +133,7 @@ $(P\wedge Q)\vee(P\wedge R)$ as a premise and obtaining $P\wedge (Q\vee R)$ as a
 conclusion. (The converse will turn out not to have a proof, however.)
 
 The proof is too large to reproduce across the page. The first part is:
- \begin{equation}
+ \begin{equation*}
    \begin{prooftree}
      \hypo{(P \wedge Q) \vee (P \wedge R)}
      \hypo{[P \wedge Q]}
@@ -145,7 +145,7 @@ The proof is too large to reproduce across the page. The first part is:
  \end{equation}
 
 The second part is:
- \begin{equation}
+ \begin{equation*}
    \begin{prooftree}
      \hypo{(P \wedge Q) \vee (P \wedge R)}
      \hypo{[P \wedge Q]}
@@ -160,7 +160,7 @@ The second part is:
 
 And putting the two together, where one imagines replacing the first ellipsis
 with the first part and the second ellipsis with the second part:
- \begin{equation}
+ \begin{equation*}
    \begin{prooftree}
      \hypo{(P \wedge Q) \vee (P \wedge R)}
      \ellipsis{1}{P}
@@ -168,7 +168,7 @@ with the first part and the second ellipsis with the second part:
      \ellipsis{2}{Q \vee R}
      \infer2[$\wedge_{\text{I}}$]{P \wedge (Q \vee R)}
    \end{prooftree}.
- \end{equation}
+ \end{equation*}
 
 What is perhaps surprising is that the converse is /not/ provable. The
 conclusion of the converse, $(P\wedge Q)\vee(P\wedge R)$, has the form of a
@@ -326,16 +326,43 @@ For propositions $P$, $Q$, and $R$, and judgements $P\vdash Q$ and $Q\dash R$,
 
 ** Example
 
-Let's try to prove 
+Let's try to construct the judgement $(P\wedge Q)\vee(P\wedge R) \vdash P\wedge
+(Q\vee R)$. Again, the whole proof is somewhat too large to fit. We need to
+complete the following:
+\begin{equation*}
+  \begin{prooftree}
+    \hypo{}\ellipsis{1}{(P \wedge Q) \vee (P \wedge R) \vdash P}
+    \hypo{}\ellipsis{2}{(P \wedge Q) \vee (P \wedge R) \vdash (Q \vee R)}
+    \infer2[$\times$]{(P \wedge Q) \vee (P \wedge R) \vdash P \wedge (Q \vee R)}
+  \end{prooftree}
+\end{equation*}
+The first part is straightforward:
+\begin{equation*}
+  \begin{prooftree}
+    \infer0[$\pi_1$]{P \wedge Q \vdash P}\infer0[$\pi_1$]{P \wedge R \vdash P}
+    \infer2[$+$]{(P \wedge Q) \vee (P \wedge R) \vdash P}
+  \end{prooftree}
+\end{equation*}
+But the second part involves composition/cut:
+\begin{equation*}
+  \begin{prooftree}
+        \infer0[$\pi_1$]{P \wedge Q \vdash Q}\infer0[$\iota_1$]{Q \vdash Q \wedge R}
+      \infer2[$\circ$]{P \wedge Q \vdash Q \vee R}
+        \infer0[$\pi_1$]{P \wedge R \vdash R}\infer0[$\iota_2$]{R \vdash Q \wedge R}
+      \infer2[$\circ$]{P \wedge R \vdash Q \vee R}
+    \infer2[$+$]{(P \wedge Q) \vee (P \wedge R) \vdash (Q \vee R)}
+  \end{prooftree}
+\end{equation*}
+
 
 ** Comments 
 
 The rule of composition, in the traditional presentation, is known as the ‘cut
-rule.’ It is disliked because, unlike the other rules, it has a proposition in
-the premise, $Q$, which does not occur in the conclusion. If one is trying to
-write an automated theorem prover this is something of a problem. An automated
-theorem prover will search backwards from conclusions and if the cut is allowed
-then the search space for premises is unbounded. 
+rule.’ It is disliked because unlike the other rules it has a proposition in the
+premise, $Q$, which does not occur in the conclusion. If one is trying to write
+an automated theorem prover this is something of a problem. An automated theorem
+prover will search backwards from conclusions and if the cut is allowed then the
+search space for premises is unbounded.
 
 There is a thereom, called ‘Hauptsatz,’ or ‘cut elimination’ to the effect that
 any construction involving cut can be replaced by one not involving cut.
