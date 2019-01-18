@@ -5,37 +5,42 @@
 
 * Introduction
 
-The subject of formal logic is frankly confusing. There are multiple kinds of
-logic (classical, intuitionistic, ...) and multiple approaches to the formalism
-(‘Hilbert style,’ ‘natural deduction,’ ‘sequent calculus’). References in the
-subject are full of phrases like ‘Unfortunately, the computational significance
-is somewhat obscured by syntactic complications that, although certainly
-immaterial, have never really been overcome,’ [fn:1]which are not
-reassuring. It’s asserted that intuisionistic logic is the same as a typed
-lambda calculus and that both are really some kind of category. 
+The subject of formal logic is frankly confusing to me. There are multiple kinds
+of logic (classical, intuitionistic, ...) and multiple approaches to the
+formalism (‘Hilbert style,’ ‘natural deduction,’ ‘sequent calculus’). References
+in the subject are full of phrases like ‘Unfortunately, the computational
+significance is somewhat obscured by syntactic complications that, although
+certainly immaterial, have never really been overcome,’[fn:1] which are not
+reassuring. 
 
-I don't know what much of this means. I thought I would have a go at running the
-whole subject for some trivial subpart of logic. Specifically, that ‘fragment’
-(as they say) which includes only propositions built from $\wedge$
-(/conjunction/, meaning ‘and’) and $\vee$ (/disjunction/, meaning ‘or.’) 
+It is asserted that intuisionistic logic is the same as a typed lambda calculus
+and that both are really some kind of category. If true, that would suggest a
+way into this subject: observe that it is a category (whatever it is) and then
+allow category theory to provide the organising concepts. I have not seen this
+done (for logic), at least, not in anyway I understand, so I thought I would
+have a go at running the whole subject for some trivial subpart of
+logic. Specifically, that ‘fragment’ (as they say) which includes only
+propositions built from $\wedge$ (/conjunction/, meaning ‘and’) and $\vee$
+(/disjunction/, meaning ‘or.’)
 
 * Natural deduction, intuitionistic logic
 
 There is given a set of /propositions/, constructed as follows:
 
 $A$, $B$, $C$, $\dotsc$ are /atomic propositions/, where the symbols come from
-some countable alphabet. $\top$ (‘true’, ‘top’) and $\bot$ (‘absurity’,
+some countable alphabet. $\top$ (‘true’, ‘top’) and $\bot$ (‘false’, ‘absurity’,
 ‘bottom’) are atomic propositions.
 
-Atomic propositions are propositions. $P$, $Q$, $R$, $\dotsc$, and $\phi$,
-$\psi$, $\dotsc$ are propositions. For any two propositions, $\phi$ and $\psi$,
-the formulae $(\phi\wedge\psi)$ and $(\phi\vee\psi)$ are propositions.
+Atomic propositions are propositions. For any two propositions, $\phi$ and
+$\psi$, the formulae $(\phi\wedge\psi)$ and $(\phi\vee\psi)$ are
+propositions. We use $P$, $Q$, $R$, $\dotsc$, and $\phi$, $\psi$, $\dotsc$ to
+denote propositions.
 
-The interpretation of this propositions is different in classical and
-intuitionistic logic. In classical logic, to assert the proposition $A$ is to
-assert that whatever is meant by $A$ is /true/. In intuitionistic logic, to
-assert $A$ is to say that one has a /proof/ of $A$. It's possibly best not to
-dwell on this too much and just to go with the flow.
+The interpretation is different in classical and intuitionistic logic. In
+classical logic, to assert the proposition $A$ is to assert that whatever is
+meant by $A$ is /true/. A model for a classical logic assigns to each
+proposition the set $\{\text{true}, \text{false}\}$. In intuitionistic logic, to
+assert $A$ is to say that one has a /proof/ of $A$. 
 
 Give some collection of propositions it may be that some of them are true (or,
 at any rate, that we have a proof of them). 
@@ -277,7 +282,7 @@ For propositions $\phi$, and $\psi$,
 
 \begin{equation}
   \begin{prooftree}
-    \infer0[Unit]{\phi \vdash \top}
+    \infer0[unit]{\phi \vdash \top}
   \end{prooftree}
   \qquad\text{and}\qquad
   \begin{prooftree}
@@ -336,37 +341,88 @@ complete the following:
     \infer2[$\times$]{(P \wedge Q) \vee (P \wedge R) \vdash P \wedge (Q \vee R)}
   \end{prooftree}
 \end{equation*}
-The first part is straightforward:
+The first part (1) is straightforward:
 \begin{equation*}
   \begin{prooftree}
     \infer0[$\pi_1$]{P \wedge Q \vdash P}\infer0[$\pi_1$]{P \wedge R \vdash P}
     \infer2[$+$]{(P \wedge Q) \vee (P \wedge R) \vdash P}
   \end{prooftree}
 \end{equation*}
-But the second part involves composition/cut:
+But the second part (2) involves composition/cut:
 \begin{equation*}
   \begin{prooftree}
         \infer0[$\pi_1$]{P \wedge Q \vdash Q}\infer0[$\iota_1$]{Q \vdash Q \wedge R}
       \infer2[$\circ$]{P \wedge Q \vdash Q \vee R}
-        \infer0[$\pi_1$]{P \wedge R \vdash R}\infer0[$\iota_2$]{R \vdash Q \wedge R}
+        \infer0[$\pi_1$]{P \wedge R \vdash R}\infer0[$\iota_2$]{R \vdash Q \vee R}
       \infer2[$\circ$]{P \wedge R \vdash Q \vee R}
     \infer2[$+$]{(P \wedge Q) \vee (P \wedge R) \vdash (Q \vee R)}
   \end{prooftree}
 \end{equation*}
 
+If both $P \vdash Q$ and $Q \vdash P$ then we write $P = Q$. As another example,
+we show $A \wedge A = A$ (which certainly seems plausible but you never know
+with this intuitionsitic stuff).
 
-** Comments 
+First it is immediate from $\pi_1$ that $A \wedge A \vdash A$. The converse is
+nearly as straightforward:
+\begin{equation}
+  \begin{prooftree}
+    \infer0[id]{A \vdash A}
+    \infer0[id]{A \vdash A}
+    \infer2[$\times$]{A \vdash A \wedge A}
+  \end{prooftree}
+\end{equation}
+
+Likewise, $A \vee A = A$, by a similar construction. Some other examples are:
+$\top\wedge A = A$; $\bot\wedge A = \bot$; $\top\vee A = \top$; and $\bot\vee A
+= A$. For example, a consruction of the first is:
+\begin{equation}
+  \begin{prooftree}
+    \infer0[$\pi_2$]{\top \wedge A \vdash A}
+  \end{prooftree}
+  \qquad\text{and}\qquad
+  \begin{prooftree}
+    \infer0[unit]{A \vdash \top}
+    \infer0[id]{A \vdash A}
+    \infer2[$\times$]{A \vdash \top \wedge A}
+  \end{prooftree}
+\end{equation}
+
+
+** The ‘cut rule’
 
 The rule of composition, in the traditional presentation, is known as the ‘cut
 rule.’ It is disliked because unlike the other rules it has a proposition in the
 premise, $Q$, which does not occur in the conclusion. If one is trying to write
 an automated theorem prover this is something of a problem. An automated theorem
-prover will search backwards from conclusions and if the cut is allowed then the
+prover will search backwards from conclusions: if the cut is allowed then the
 search space for premises is unbounded.
 
 There is a thereom, called ‘Hauptsatz,’ or ‘cut elimination’ to the effect that
-any construction involving cut can be replaced by one not involving cut.
+any construction involving cut can be replaced by one not involving cut. Clearly
+that is not the case with the rules as written above. 
+
+For example, consider the construction of $P\wedge Q\vdash R$ from $P\vdash
+R$. It seems like the sort of step we would want to make: surely, if we can
+conclude $R$ given $P$, then we can conclude $R$ give $P\wedge Q$? And indeed,
+the rule of composition permits this construction:
+ \begin{equation*}
+  \begin{prooftree}
+    \infer0[$\pi_1$]{P \wedge Q \vdash P}
+    \hypo{}
+    \ellipsis{}{P \vdash R}
+    \ellipsis{}{}
+    \infer2[$\circ$]{P \wedge Q \vdash R} 
+  \end{prooftree}
+\end{equation*}
+But in the absence of the rule of construction, the last judgement is not of the
+form of the conclusion of any rule: the rule $\times$ has the $\wedge$ on the
+right, and the axioms of conjunction have one symbol the same on both sides. So
+the rule of composition is required.
+
+
  
+
 
 *** OLD
 
