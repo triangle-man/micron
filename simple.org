@@ -17,7 +17,7 @@ It is asserted that intuisionistic logic is the same as a typed lambda calculus
 and that both are really some kind of category. If true, that would suggest a
 way into this subject: observe that it is a category (whatever it is) and then
 allow category theory to provide the organising concepts. I have not seen this
-done (for logic), at least, not in anyway I understand, so I thought I would
+done (for logic), at least, not in any way I understand, so I thought I would
 have a go at running the whole subject for some trivial subpart of
 logic. Specifically, that ‘fragment’ (as they say) which includes only
 propositions built from $\wedge$ (/conjunction/, meaning ‘and’) and $\vee$
@@ -404,7 +404,7 @@ that is not the case with the rules as written above.
 
 For example, consider the construction of $P\wedge Q\vdash R$ from $P\vdash
 R$. It seems like the sort of step we would want to make: surely, if we can
-conclude $R$ given $P$, then we can conclude $R$ give $P\wedge Q$? And indeed,
+conclude $R$ given $P$, then we can conclude $R$ given $P\wedge Q$? And indeed,
 the rule of composition permits this construction:
  \begin{equation*}
   \begin{prooftree}
@@ -415,51 +415,46 @@ the rule of composition permits this construction:
     \infer2[$\circ$]{P \wedge Q \vdash R} 
   \end{prooftree}
 \end{equation*}
-But in the absence of the rule of construction, the last judgement is not of the
-form of the conclusion of any rule: the rule $\times$ has the $\wedge$ on the
-right, and the axioms of conjunction have one symbol the same on both sides. So
-the rule of composition is required.
+In the absence of the rule of construction, the last judgement is not of the
+form of the conclusion of any rule: the rule `$\times$' has $\wedge$ on the
+right, whereas the conclusion above has $\wedge$ on the left; and the axioms of
+conjunction have one symbol the same on both sides of the judgement, whereas the
+conclusion above has no symbols in common between the two side. So the rule of
+composition is required unless we introduce new rules.
+
+If one is familiar with category theory, one would suspect that $\wedge$ is a
+product (and $\vee$ a coproduct). The axioms $\pi_1$ and $\pi_2$ look a lot like
+the the projection operators that occur in the definition of a product; and the
+rule $\times$ looks a lot like the mediating morphism. However, there is
+something missing. In the categorical definitions, the mediating morphism
+doesn't just exist, it forms a commuting diagram and is unique in doing so. The
+commuting condition says that, given $P\vdash\phi$ and $P\vdash\psi$, then:
+\begin{equation*}
+    P \vdash \phi
+\quad = \quad
+  \begin{prooftree}
+    \hypo{P \vdash \phi}
+    \hypo{P \vdash \psi}
+    \infer2[$\times$]{P \vdash \phi \wedge \psi}
+    \infer0[$\pi_1$]{\phi \wedge \psi \vdash \phi}
+    \infer2[$\circ$]{P \vdash \phi}
+  \end{prooftree}.
+\end{equation*}
+Note that the above is saying that two /prima facie/ different judgements are in
+fact the same. They are different /prima facie/ because their constructions are
+different.
+
+
+
+
+
+
 
 
  
 
 
 *** OLD
-
-** Comments
-
- Note that the rules for conjunction and disjunction introduce or eliminate their
- respective symbols on the right-hand side of judgments. The corresponding
- ‘left-side rules’ follow from these, however.
-
- From conjunction elimination of the right to conjuction introduction on the left:
- \begin{equation*}
-   \begin{prooftree}
-     \infer0[id]{\phi\wedge\psi &\vdash \phi\wedge\psi}
-     \infer1[$\wedge_\text{E1}$]{\phi\wedge\psi &\vdash \phi}
-   \end{prooftree}
-   \quad\implies\quad
-   \begin{prooftree}
-     \infer0[$\wedge_{\text{II1}}$]{\phi\wedge\psi \vdash \phi}
-   \end{prooftree}
- \end{equation*}
- (and /mutatis mutandis/ for $\wedge_{\text{E2}}$).
-
- From conjunction introduction on the right to conjuction elimination on the
- left:
- \begin{equation*}
-   \begin{prooftree}
-     \infer0[id]{\phi\wedge\psi \vdash \phi\wedge\psi}
-     \infer1[$\wedge_\text{E}$]{\phi\wedge\psi \vdash \phi}
-   \end{prooftree}
-   \quad\implies\quad
-   \begin{prooftree}
-     \hypo{P \vdash \phi}
-     \hypo{P \vdash \psi}
-     \hypo{\phi\wedge\psi \vdash Q}
-     \infer3[$\wedge_\text{EE}$]{P \vdash Q}
-   \end{prooftree}
- \end{equation*}
 
 * Footnotes
 
