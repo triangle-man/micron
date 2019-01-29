@@ -219,11 +219,11 @@ of its proofs, and to deal directly with things that are rather like proofs. /As
 it happens/, in the full version of all of this, it /is/ possible to identify
 sets of proofs with propositions; but that doesn't mean they are the same thing.
 
-A /judgement/ is a pair of propositions, written $\phi\vdash\psi$, such that
-there exists a (constructive!) proof of $\psi$ given $\phi$. The plan is to
-write down some axiomatic judgements, and some ways of constructing new
-judgements given existing ones: we identify a judgement with its construction
-(/i.e./, its proof). Finally, for reasons to be explained later, we introduce an
+A /judgement/ is a pair of propositions, written $\phi\vdash\psi$, and is
+/interpreted/ to mean that, given a proof of $\phi$, there exists a proof of
+$\psi$. The plan is to write down some axiomatic judgements and some ways of
+constructing new judgements given existing ones: we identify a judgement with
+its construction. Finally, for reasons to be explained later, we introduce an
 equivalence on judgments, and the equivalence classes will be the real objects
 of study.
 
@@ -233,13 +233,16 @@ of the judgement turnstile is a multiset of premises (and in the classical
 version the thing on the right is also a multiset as well). But I am trying to
 understand how all this is related to categories; and thus I am looking for a
 morphism. I don't feel too bad about this adjustment to nomenclature since it
-appears that everyone in this field is happy to reinvent it.
+appears that everyone in this field is happy to reinvent the game as well.
 
 ** Proofs
 
 Judgements are constructed according to proofs. A proof is a connected series of
 judgements, each following from the previous according to certain rules. The
 rules of proofs are as follows.
+
+By the way, I am assuming that there are no sequents of the form $A\vdash B$,
+where $A$ and $B$ are atomic propsitions, other than $A\vdash A$. 
 
 ** Axiomatic judgements
 
@@ -361,7 +364,7 @@ But the second part (2) involves composition/cut:
 
 If both $P \vdash Q$ and $Q \vdash P$ then we write $P = Q$. As another example,
 we show $A \wedge A = A$ (which certainly seems plausible but you never know
-with this intuitionsitic stuff).
+with this intuitionistic stuff).
 
 First it is immediate from $\pi_1$ that $A \wedge A \vdash A$. The converse is
 nearly as straightforward:
@@ -375,7 +378,7 @@ nearly as straightforward:
 
 Likewise, $A \vee A = A$, by a similar construction. Some other examples are:
 $\top\wedge A = A$; $\bot\wedge A = \bot$; $\top\vee A = \top$; and $\bot\vee A
-= A$. For example, a consruction of the first is:
+= A$. For example, a construction of the first is:
 \begin{equation}
   \begin{prooftree}
     \infer0[$\pi_2$]{\top \wedge A \vdash A}
@@ -398,7 +401,7 @@ an automated theorem prover this is something of a problem. An automated theorem
 prover will search backwards from conclusions: if the cut is allowed then the
 search space for premises is unbounded.
 
-There is a thereom, called ‘Hauptsatz,’ or ‘cut elimination’ to the effect that
+There is a thereom, called ‘Hauptsatz,’ or ‘cut elimination,’ to the effect that
 any construction involving cut can be replaced by one not involving cut. Clearly
 that is not the case with the rules as written above. 
 
@@ -421,6 +424,134 @@ right, whereas the conclusion above has $\wedge$ on the left; and the axioms of
 conjunction have one symbol the same on both sides of the judgement, whereas the
 conclusion above has no symbols in common between the two side. So the rule of
 composition is required unless we introduce new rules.
+
+One thing we might do is the following. The rule of composition allows us to
+construct new judgements from existing ones. Perhaps we can just write down
+these new judgements as rules. For example, given that the construction of
+propositions introduces $\phi\wedge\psi$, we might ask what judgements,
+introduced by the rule of composition, have $\phi\wedge\psi$ on their left- or
+right-hand side. That is, can we fill in the following judgements:
+\begin{equation*}
+  \begin{prooftree}
+    \hypo{P \wedge Q \vdash \text?}
+    \hypo{\text?}
+    \infer2{\text?}
+  \end{prooftree},\quad
+  \begin{prooftree}
+    \hypo{\text? \vdash P \wedge Q}
+    \hypo{\text?}
+    \infer2{\text?}
+  \end{prooftree},\quad
+  \begin{prooftree}
+    \hypo{\text?}
+    \infer1{P \wedge Q \vdash \text?}
+  \end{prooftree},\quad\text{and}\quad
+  \begin{prooftree}
+    \hypo{P \wedge Q \vdash \text?}
+    \hypo{\text?}
+    \infer1{\text? \vdash P \wedge Q}
+  \end{prooftree}.
+\end{equation*}
+
+Presumably, they would look something like this (where we've already got the
+last one as the rule of conjunction):
+\begin{equation*}
+  \begin{prooftree}
+    \hypo{\Gamma \vdash P}
+    \hypo{\Gamma \vdash Q}
+    \hypo{P \wedge Q \vdash R}
+    \infer3{\Gamma \vdash R}
+  \end{prooftree},\qquad
+  \begin{prooftree}
+    \hypo{R \vdash P \wedge Q}
+    \infer1{R \vdash P}
+  \end{prooftree},\qquad
+  \begin{prooftree}
+    \hypo{R \vdash P \wedge Q}
+     \infer1{R \vdash Q}
+  \end{prooftree},
+\end{equation*}
+and
+\begin{equation*}
+  \begin{prooftree}
+    \hypo{P \vdash \Gamma}
+    \infer1{P \wedge Q \vdash \Gamma}
+  \end{prooftree},\qquad
+  \begin{prooftree}
+    \hypo{Q \vdash \Gamma}
+    \infer1{P \wedge Q \vdash \Gamma}
+  \end{prooftree},\quad\text{and}\quad
+  \begin{prooftree}
+    \hypo{\Gamma \vdash P}
+    \hypo{\Gamma \vdash Q}
+    \infer2[$\times$]{\Gamma \vdash P \wedge Q}
+  \end{prooftree}.
+\end{equation*}
+Note that these constructions come in two kinds: those that “introduce” a
+conjunction (either on the left or the right of the judgement) and those that
+“eliminate” one (either on the left or the right).
+
+** Composition (again)
+
+Conversely, let's apply the rule of composition to as many things as possible
+(still sticking with conjuction only). The two parts of the premise of $\circ$
+could come from either the axiom or the rule of composition. 
+
+The conclusion of the axiom has the form $\phi\wedge\psi \vdash \phi$ (or $\psi$
+on the right) and the conclusion of the rule has the form $P\vdash
+\phi\wedge\psi$, where $P\vdash\phi$ and $P\vdash\psi$. If we use composition to
+cut out the product, we get a judgement $P\vdash\phi$: 
+\begin{equation*}
+  \begin{prooftree}
+    \hypo{P \vdash \phi}
+    \hypo{P \vdash \psi}
+    \infer2[$\times$]{P \vdash \phi \wedge \psi}
+    \infer0[$\pi_1$]{\phi \wedge \psi \vdash \phi}
+    \infer2[$\circ$]{P \vdash \phi}
+\end{prooftree}.
+\end{equation*}
+Note that the judgement $P\vdash\phi$ in the premise is not necessarily the same
+judgement as the judgement $P\vdash\phi$ in the conclusion. We identify
+judgements by their construction and these two have /prima facie/ different
+constructions.
+
+We could also try composition the other way around:
+\begin{equation*}
+  \begin{prooftree}
+    \infer0[$\pi_1$]{\phi \wedge \psi \vdash \phi}
+    \hypo{\phi \vdash P}
+    \hypo{\phi \vdash Q}
+    \infer2[$\times$]{\phi \vdash P \wedge Q}
+    \infer2[$\circ$]{\phi \wedge \psi \vdash P \wedge Q}
+\end{prooftree}.
+\end{equation*}
+
+We could apply composition to two axioms:
+\begin{equation*}
+  \begin{prooftree}
+    \infer0[$\pi_1$]{(\phi \wedge \psi) \wedge \rho \vdash \phi \wedge \psi}
+    \infer0[$\pi_1$]{\phi \wedge \psi \vdash \phi}
+    \infer2[$\circ$]{(\phi \wedge \psi) \wedge \rho \vdash \phi}
+\end{prooftree}.
+\end{equation*}
+
+And finally, we could apply composition to two rules of conjunction:
+\begin{equation*}
+  \begin{prooftree}
+    \hypo{\phi \vdash P}
+    \hypo{\phi \vdash Q}
+    \infer2[$\times$]{\phi \vdash P \wedge Q}
+
+    \hypo{P \wedge Q \vdash R}
+    \hypo{P \wedge Q \vdash S}
+    \infer2[$\times$]{P \wedge Q \vdash R \wedge S}
+    \infer2[$\circ$]{\phi \wedge \psi \vdash R \wedge S}
+  \end{prooftree}.
+\end{equation*}
+
+ 
+
+* Categories
 
 If one is familiar with category theory, one would suspect that $\wedge$ is a
 product (and $\vee$ a coproduct). The axioms $\pi_1$ and $\pi_2$ look a lot like
