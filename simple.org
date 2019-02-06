@@ -587,34 +587,38 @@ different.
 Here is what you might call a “programming language,” if you were being
 charitable.
 
-Fix, once and for all, a countable collection of /atomic types/,
-$A, B, C, \dotsc$. A /type/ is either an atomic type, or $\top$, or $P\times Q$,
-where $P$ and $Q$ are types. (In code, we write ~P * Q~ for $P\times Q$.) An
-/arrow type/ is a pair of types separated by an arrow, such as $P\to Q$. If
-$P\to Q$ is an arrow type, we call $P$ the /domain/ and $Q$ the /range/.
+Fix, once and for all, a countable collection of /atomic types/, $A, B, C,
+\dotsc$. A /type/ is either an atomic type, or $\top$, or $P\times Q$, where $P$
+and $Q$ are types. (In code, we write ~P * Q~ for $P\times Q$.) An /arrow type/
+is a pair of types, which we write separated by an arrow, such as $P\to
+Q$. If $P\to Q$ is an arrow type, we call $P$ the /domain/ and $Q$ the /range/.
 
 A program is now “a thing with an arrow type.” The syntax of programs is defined
 by terms and expressions. A /term/ is one of the following, where $e_1$ and
 $e_2$ are arbitrary expressions (which will be defined in a minute):
 \begin{equation*}
 \begin{align}
-  t \equiv \unit \mid \id \mid \fst \mid \snd \mid (e_1, e_2) \mid e_2 \circ e_1.
+  t \equiv \unit \mid \id \mid \fst \mid \snd \mid e_1 \times e_2 \mid e_2 \circ e_1.
 \end{align}
 \end{equation*}
-Note that the intended reading of the last rule, involving a juxtaposition of
-two expressions, is the composition of two functions, the the second following
-the first. (But note that there are no functions here.)
+The intended reading of the last rule, involving a juxtaposition of two
+expressions, is the composition of two functions, the the second following the
+first. (But note that there are no functions here.)
+
+Also note that we use the same symbol, ‘$\times$’, for constructing new
+expressions and for constructing new types, but expressions are not types so
+this is not the same operator.
 
 An /expression/ is defined by a term together with an arrow type, which we write
-as $t : P\to Q$. Not all combinations of terms and arrow types are expresssions:
-the following defines which constructions are:
+as $t : P\to Q$. Not all combinations of terms and arrow types are expresssions;
+the following defines which constructions are allowed:
 \begin{equation*}
 \begin{align}
   e \equiv &\unit : P \to \top \\
     &\mid \id : P \to P \\
     &\mid \fst : P \times Q \to P \\
     &\mid \snd : P \times Q \to Q \\
-    &\mid (t_1 : P \to Q, t_2 : P \to R) : P \to Q \times R \\
+    &\mid (t_1 : P \to Q) \times (t_2 : P \to R) : P \to Q \times R \\
     &\mid (t_2 : Q \to R) \circ (t_1 : P \to Q) : P \to R.
 \end{align}
 \end{equation*}
@@ -634,18 +638,18 @@ constituents.
 
 For example, consider the following expression
 \begin{equation*}
-\bigl(\fst : A \times \top \to A\bigr) \circ \bigl( (\id :A \to A, \unit : A \to \top) : A \to A \times \top\bigr) : A \to A.
+\bigl(\fst : A \times \top \to A\bigr) \circ \bigl( (\id :A \to A \times \unit : A \to \top) : A \to A \times \top\bigr) : A \to A.
 \end{equation*}
-Here is the same thing written in the tree notation. Note that parent nodes are
-written below their child nodes; so we start at the top with the innermost
-(atomic) expressions.
+And now here is the same thing written in the tree notation. Note that parent
+nodes are written below their child nodes; so we start at the top with the
+innermost (atomic) expressions.
 \begin{equation*}
   \begin{prooftree}
     \hypo{\fst : A \times \top \to A}
     \hypo{\id : A \to A}
     \hypo{\unit : A \to \top}
-    \infer2{(\id, \unit) : A \to A \times \top}
-    \infer2{\fst \circ (\id, \unit) : A \to A}
+    \infer2{\id \times \unit : A \to A \times \top}
+    \infer2{\fst \circ (\id \times \unit) : A \to A}
   \end{prooftree}
 \end{equation*} 
 
