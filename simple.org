@@ -2,6 +2,12 @@
 #+startup: showall
 #+options: toc:nil
 #+latex_header: \usepackage{ebproof}
+#+latex_header: \DeclareMathOperator{\unit}{\text{\tt unit}}
+#+latex_header: \DeclareMathOperator{\id}{\text{\tt id}}
+#+latex_header: \DeclareMathOperator{\fst}{\text{\tt fst}}
+#+latex_header: \DeclareMathOperator{\snd}{\text{\tt snd}}
+#+latex_header: \DeclareMathOperator{\dom}{dom}
+#+latex_header: \DeclareMathOperator{\rng}{rng}
 
 * Introduction
 
@@ -136,7 +142,7 @@ nothing. In the second note that the conclusion is an arbitrary proposition:
 Let’s prove that $\wedge$ distributes over $\vee$. We shall do this by assuming
 $(P\wedge Q)\vee(P\wedge R)$ as a premise and obtaining $P\wedge (Q\vee R)$ as a
 conclusion. (The converse will turn out not to have a proof, however.)
-
+o
 The proof is too large to reproduce across the page. The first part is:
  \begin{equation*}
    \begin{prooftree}
@@ -147,7 +153,7 @@ The proof is too large to reproduce across the page. The first part is:
      \infer1[$\wedge_{\text{E1}}$]{P}    
      \infer3[$\vee_{\text{E}}$]{P}
    \end{prooftree}.
- \end{equation}
+ \end{equation*}
 
 The second part is:
  \begin{equation*}
@@ -161,7 +167,7 @@ The second part is:
      \infer1[$\vee_{\text{I2}}$]{Q \vee R}
      \infer3[$\vee_{\text{E}}$]{Q \vee R}
    \end{prooftree}.
- \end{equation}
+ \end{equation*}
 
 And putting the two together, where one imagines replacing the first ellipsis
 with the first part and the second ellipsis with the second part:
@@ -324,7 +330,7 @@ $\psi \vdash P$,
 
 ** Rule of composition
 
-For propositions $P$, $Q$, and $R$, and judgements $P\vdash Q$ and $Q\dash R$,
+For propositions $P$, $Q$, and $R$, and judgements $P\vdash Q$ and $Q\vdash R$,
 \begin{equation}
   \begin{prooftree}
     \hypo{P \vdash Q} \hypo{Q \vdash R}
@@ -449,7 +455,7 @@ right-hand side. That is, can we fill in the following judgements:
   \begin{prooftree}
     \hypo{P \wedge Q \vdash \text?}
     \hypo{\text?}
-    \infer1{\text? \vdash P \wedge Q}
+    \infer2{\text? \vdash P \wedge Q}
   \end{prooftree}.
 \end{equation*}
 
@@ -576,6 +582,161 @@ fact the same. They are different /prima facie/ because their constructions are
 different.
 
 
+* Programs
+
+Here is what you might call a “programming language,” if you were being
+charitable.
+
+Fix, once and for all, a countable collection of /atomic types/,
+$A, B, C, \dotsc$. A /type/ is either an atomic type, or $\top$, or $P\times Q$,
+where $P$ and $Q$ are types. (In code, we write ~P * Q~ for $P\times Q$.) An
+/arrow type/ is a pair of types separated by an arrow, such as $P\to Q$. If
+$P\to Q$ is an arrow type, we call $P$ the /domain/ and $Q$ the /range/.
+
+A program is now “a thing with an arrow type.” The syntax of programs is defined
+by terms and expressions. A /term/ is one of the following, where $e_1$ and
+$e_2$ are arbitrary expressions (which will be defined in a minute):
+\begin{equation*}
+\begin{align}
+  t \equiv \unit \mid \id \mid \fst \mid \snd \mid (e_1, e_2) \mid e_2 \circ e_1.
+\end{align}
+\end{equation*}
+Note that the intended reading of the last rule, involving a juxtaposition of
+two expressions, is the composition of two functions, the the second following
+the first. (But note that there are no functions here.)
+
+An /expression/ is defined by a term together with an arrow type, which we write
+as $t : P\to Q$. Not all combinations of terms and arrow types are expresssions:
+the following defines which constructions are:
+\begin{equation*}
+\begin{align}
+  e \equiv &\unit : P \to \top \\
+    &\mid \id : P \to P \\
+    &\mid \fst : P \times Q \to P \\
+    &\mid \snd : P \times Q \to Q \\
+    &\mid (t_1 : P \to Q, t_2 : P \to R) : P \to Q \times R \\
+    &\mid (t_2 : Q \to R) \circ (t_1 : P \to Q) : P \to R.
+\end{align}
+\end{equation*}
+You can see that the rules say how to line up the types to make sensible
+combinations. For example, the rule for $\id$ says that “identities map a type
+to itself.” (Not really, because terms aren't maps and types aren't sets; but
+that's the sort of thing one is supposed to imagine.) As another example, the
+rule for composition says that the range of $e_1$ has to be the domain of $e_2$,
+which is very sensible if you want to compose functions.
+
+It is sometimes difficult to write out expressions because they rapidly become
+very long. An alternative approach is to write the syntax tree of the expression
+as an actual tree. Each node in the tree is an expression with the types erased,
+except for the type of the whole expression; the children of that node
+demonstrate that it is an allowed expression by exhibiting the types of its
+constituents.
+
+For example, consider the following expression
+\begin{equation*}
+\bigl(\fst : A \times \top \to A\bigr) \circ \bigl( (\id :A \to A, \unit : A \to \top) : A \to A \times \top\bigr) : A \to A.
+\end{equation*}
+Here is the same thing written in the tree notation. Note that parent nodes are
+written below their child nodes; so we start at the top with the innermost
+(atomic) expressions.
+\begin{equation*}
+  \begin{prooftree}
+    \hypo{\fst : A \times \top \to A}
+    \hypo{\id : A \to A}
+    \hypo{\unit : A \to \top}
+    \infer2{(\id, \unit) : A \to A \times \top}
+    \infer2{\fst \circ (\id, \unit) : A \to A}
+  \end{prooftree}
+\end{equation*} 
+
+The tree notation conveys the same information as the expression but is easier
+to read. In particular, it is easier to check that the types are all of the
+correct form for each way of construction an expression.
+
+Well, now, it /almost/ looks like we have a category. The definition would go
+something like this: let the objects be types, and let the morphisms be
+expressions. A morphism $e:P\to Q$ is just an expression whose arrow type is
+$P\to Q$. To compose morphisms, use the rule of composition.
+
+However, we do not, thereby, obtain a category. One must check the category
+axioms and these in general do not hold. For example, the only reasonable
+candidate for an identity morphism is $\id$ but the expression $\id:A\to A$
+is patently not the same expression as $(\id:A\to A)\circ(\id:A\to A)$.
+
+A separate problem is that composition (of expressions) is not
+associative. Consider the following expression (written in tree notation):
+\begin{equation*}\footnotesize
+  \begin{prooftree}
+    \hypo{\snd : A \times B \to B}
+    \hypo{\fst : (A \times B) \times C \to A \times B}
+    \hypo{\fst : ((A \times B) \times C) \times D \to (A \times B) \times C}
+    \infer2{\fst\circ\fst : ((A \times B) \times C) \times D \to A \times B}
+    \infer2{\snd\circ(\fst\circ\fst) : ((A \times B) \times C) \times D \to B}
+    \end{prooftree}.   
+\end{equation*}
+And here is another way of constructing the same expression:
+\begin{equation*}\footnotesize
+  \begin{prooftree}
+    \hypo{\snd : A \times B \to B}
+    \hypo{\fst : (A \times B) \times C \to A \times B}
+    \infer2{\snd\circ\fst : (A \times B) \times C \to B}
+    \hypo{\fst : ((A \times B) \times C) \times D \to (A \times B) \times C}
+    \infer2{(\snd\circ\fst)\circ\fst : ((A \times B) \times C) \times D \to B}
+    \end{prooftree}.   
+\end{equation*}
+On the face of it, these two are not the same construction, hence not the same
+expression. 
+
+It turns out that we can fix all these problems by introducing an equivalence
+relation on well-typed programs. First, we simply don't indicate the order of
+composition in terms. For example, we write ~snd fst fst~ rather than ~(snd fst)
+fst~ or ~snd (fst fst)~.
+
+Second, we introduce a reduction relation on terms, with the following two
+rules:
+\begin{equation*}
+  t\; \text{\tt id} \Rightarrow t
+  \quad\text{and}\quad
+  \text{\tt id}\; t \Rightarrow t 
+\end{equation*}
+for any term $t$;
+\begin{equation*}
+  \text{\tt unit}\; t \Rightarrow \text{\tt unit}
+\end{equation*}
+for any term $t$; and 
+\begin{equation*}
+  \text{\tt fst}\;(t_1, t_2) \Rightarrow t_1 
+  \qquad\text{and}\qquad
+  \text{\tt snd}\;(t_1, t_2) \Rightarrow t_2 
+\end{equation*}
+for any terms $t_1$ and $t_2$. (Note that these relations on terms are all
+arrow type--preserving and so are also reduction relations on expressions.) 
+
+
+* OLD
+
+We note that, if some expression has a well-typed program, then it is always
+possible to deduce it. (A separate question, not addressed here, is whether one
+can always assign an arrow type to a term to produce a well-typed program.)
+
+To see this, consider an expression $e = t:P\to Q$, where $t$ is a term and $P$
+and $Q$ are types. If $t$ is one of the “built-in” terms, ~fst~, ~snd~, ~id~, or
+~unit~, then $P$ and $Q$ must have the appropriate forms for those types and we
+are done. Otherwise, $t$ is either a product or a composition. If it is a
+product, then we must have $t = (r, s)$ for some $r$ and $s$ and, in addition,
+$Q = R\times S$ for some $R$ and $S$. We may therefore assign arrow types to $r$
+and $s$ as $r : P\to R$ and $s : P\to S$. 
+
+On the other hand, if $t$ is a composition, then by associativity, it must be of
+the form 
+
+
+
+
+
+
+
+
 
 
 
@@ -585,7 +746,7 @@ different.
  
 
 
-*** OLD
+
 
 * Footnotes
 
