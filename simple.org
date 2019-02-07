@@ -649,7 +649,7 @@ innermost (atomic) expressions.
     \hypo{\id : A \to A}
     \hypo{\unit : A \to \top}
     \infer2{\id \times \unit : A \to A \times \top}
-    \infer2{\fst \circ (\id \times \unit) : A \to A}
+    \infer2{\fst \circ {(\id \times \unit) : A \to A}}
   \end{prooftree}
 \end{equation*} 
 
@@ -675,7 +675,7 @@ associative. Consider the following expression (written in tree notation):
     \hypo{\fst : (A \times B) \times C \to A \times B}
     \hypo{\fst : ((A \times B) \times C) \times D \to (A \times B) \times C}
     \infer2{\fst\circ\fst : ((A \times B) \times C) \times D \to A \times B}
-    \infer2{\snd\circ(\fst\circ\fst) : ((A \times B) \times C) \times D \to B}
+    \infer2{\snd \circ (\fst\circ\fst) : ((A \times B) \times C) \times D \to B}
     \end{prooftree}.   
 \end{equation*}
 And here is another way of constructing the same expression:
