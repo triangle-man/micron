@@ -6,8 +6,9 @@
 #+latex_header: \DeclareMathOperator{\id}{\text{\tt id}}
 #+latex_header: \DeclareMathOperator{\fst}{\text{\tt fst}}
 #+latex_header: \DeclareMathOperator{\snd}{\text{\tt snd}}
-#+latex_header: \DeclareMathOperator{\dom}{dom}
-#+latex_header: \DeclareMathOperator{\rng}{rng}
+#+latex_header: \DeclareMathOperator{\src}{source}
+#+latex_header: \DeclareMathOperator{\trg}{target}
+#+latex_header: \DeclareMathOperator{\typ}{type}
 
 * Introduction
 
@@ -591,7 +592,7 @@ Fix, once and for all, a countable collection of /atomic types/, $A, B, C,
 \dotsc$. A /type/ is either an atomic type, or $\top$, or $P\times Q$, where $P$
 and $Q$ are types. (In code, we write ~P * Q~ for $P\times Q$.) An /arrow type/
 is a pair of types, which we write separated by an arrow, such as $P\to
-Q$. If $P\to Q$ is an arrow type, we call $P$ the /domain/ and $Q$ the /range/.
+Q$. If $P\to Q$ is an arrow type, we call $P$ the /source/ and $Q$ the /target/.
 
 A program is now “a thing with an arrow type.” The syntax of programs is defined
 by terms and expressions. A /term/ is one of the following, where $e_1$ and
@@ -611,23 +612,29 @@ expressions, is the composition of two functions, the the second following the
 first. (But note that there are no functions here.)
 
 An /expression/ is defined by a term together with an arrow type, which we write
-as $t : P\to Q$. Not all combinations of terms and arrow types are expresssions;
-the following defines which constructions are allowed:
+as, say, $t : P\to Q$. If $e = t : P\to Q$ is an expression, then
+$\typ(e)\equiv P\to Q$. 
+
+One more bit of notational convention. If $e$ is an expression, then we also
+write $e : P\to Q$ to mean “$e$ is an expression such that $\typ(e) = P\to Q$.
+
+Not all combinations of terms and arrow types are expresssions; the following
+defines which constructions are allowed:
 \begin{equation*}
 \begin{align}
   e \equiv &\unit : P \to \top \\
     &\mid \id : P \to P \\
     &\mid \fst : P \times Q \to P \\
     &\mid \snd : P \times Q \to Q \\
-    &\mid \langle t_1 : P \to Q, t_2 : P \to R \rangle : P \to Q \times R \\
-    &\mid (t_2 : Q \to R) \circ (t_1 : P \to Q) : P \to R.
+    &\mid \langle e_1 : P \to Q, e_2 : P \to R \rangle : P \to Q \times R \\
+    &\mid (e_2 : Q \to R) \circ (e_1 : P \to Q) : P \to R.
 \end{align}
 \end{equation*}
 You can see that the rules say how to line up the types to make sensible
 combinations. For example, the rule for $\id$ says that “identities map a type
 to itself.” (Not really, because terms aren't maps and types aren't sets; but
 that's the sort of thing one is supposed to imagine.) As another example, the
-rule for composition says that the range of $e_1$ has to be the domain of $e_2$,
+rule for composition says that the target of $e_1$ has to be the source of $e_2$,
 which is very sensible if you want to compose functions.
 
 It is sometimes difficult to write out expressions because they rapidly become
