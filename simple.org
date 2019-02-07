@@ -598,16 +598,17 @@ by terms and expressions. A /term/ is one of the following, where $e_1$ and
 $e_2$ are arbitrary expressions (which will be defined in a minute):
 \begin{equation*}
 \begin{align}
-  t \equiv \unit \mid \id \mid \fst \mid \snd \mid e_1 \times e_2 \mid e_2 \circ e_1.
+  t \equiv \unit 
+  \mid \id 
+  \mid \fst
+  \mid \snd
+  \mid \langle e_1, e_2 \rangle
+  \mid e_2 \circ e_1.
 \end{align}
 \end{equation*}
 The intended reading of the last rule, involving a juxtaposition of two
 expressions, is the composition of two functions, the the second following the
 first. (But note that there are no functions here.)
-
-Also note that we use the same symbol, ‘$\times$’, for constructing new
-expressions and for constructing new types, but expressions are not types so
-this is not the same operator.
 
 An /expression/ is defined by a term together with an arrow type, which we write
 as $t : P\to Q$. Not all combinations of terms and arrow types are expresssions;
@@ -618,7 +619,7 @@ the following defines which constructions are allowed:
     &\mid \id : P \to P \\
     &\mid \fst : P \times Q \to P \\
     &\mid \snd : P \times Q \to Q \\
-    &\mid (t_1 : P \to Q) \times (t_2 : P \to R) : P \to Q \times R \\
+    &\mid \langle t_1 : P \to Q, t_2 : P \to R \rangle : P \to Q \times R \\
     &\mid (t_2 : Q \to R) \circ (t_1 : P \to Q) : P \to R.
 \end{align}
 \end{equation*}
@@ -638,7 +639,7 @@ constituents.
 
 For example, consider the following expression
 \begin{equation*}
-\bigl(\fst : A \times \top \to A\bigr) \circ \bigl( (\id :A \to A \times \unit : A \to \top) : A \to A \times \top\bigr) : A \to A.
+\bigl(\fst : A \times \top \to A\bigr) \circ \bigl( \langle \id :A \to A, \unit : A \to \top \rangle : A \to A \times \top\bigr) : A \to A.
 \end{equation*}
 And now here is the same thing written in the tree notation. Note that parent
 nodes are written below their child nodes; so we start at the top with the
@@ -648,8 +649,8 @@ innermost (atomic) expressions.
     \hypo{\fst : A \times \top \to A}
     \hypo{\id : A \to A}
     \hypo{\unit : A \to \top}
-    \infer2{\id \times \unit : A \to A \times \top}
-    \infer2{\fst \circ {(\id \times \unit) : A \to A}}
+    \infer2{\langle \id, \unit\rangle : A \to A \times \top}
+    \infer2{\fst \circ {\langle \id, \unit \rangle : A \to A}}
   \end{prooftree}
 \end{equation*} 
 
