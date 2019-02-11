@@ -29,14 +29,12 @@ A program is now “a thing with an arrow type.” The syntax of programs is def
 by terms and expressions. A /term/ is one of the following, where $e_1$ and
 $e_2$ are arbitrary expressions (which will be defined in a minute):
 \begin{equation*}
-\begin{align}
   t \equiv \unit 
   \mid \id 
   \mid \fst
   \mid \snd
   \mid \langle e_1, e_2 \rangle
   \mid e_2 \circ e_1.
-\end{align}
 \end{equation*}
 The intended reading of the last rule, involving a juxtaposition of two
 expressions, is the composition of two functions, the the second following the
@@ -46,20 +44,21 @@ An /expression/ is defined by a term together with an arrow type, which we write
 as, say, $t : P\to Q$. If $e = t : P\to Q$ is an expression, then
 $\typ(e)\equiv P\to Q$. 
 
-One more bit of notational convention. If $e$ is an expression, then we also
-write $e : P\to Q$ to mean “$e$ is an expression such that $\typ(e) = P\to Q$.
+One more bit of notational convenience. If $e$ is an expression, then we also
+write $e : P\to Q$ to mean “$e$ is an expression such that $\typ(e) = P\to
+Q$. 
 
 Not all combinations of terms and arrow types are expresssions; the following
 defines which constructions are allowed:
 \begin{equation*}
-\begin{align}
+\begin{split}
   e \equiv &\unit : P \to \top \\
     &\mid \id : P \to P \\
     &\mid \fst : P \times Q \to P \\
     &\mid \snd : P \times Q \to Q \\
     &\mid \langle e_1 : P \to Q, e_2 : P \to R \rangle : P \to Q \times R \\
     &\mid (e_2 : Q \to R) \circ (e_1 : P \to Q) : P \to R.
-\end{align}
+\end{split}
 \end{equation*}
 You can see that the rules say how to line up the types to make sensible
 combinations. For example, the rule for $\id$ says that “identities map a type
@@ -67,6 +66,9 @@ to itself.” (Not really, because terms aren't maps and types aren't sets; but
 that's the sort of thing one is supposed to imagine.) As another example, the
 rule for composition says that the target of $e_1$ has to be the source of $e_2$,
 which is very sensible if you want to compose functions.
+
+In the last two productions in the definition of expressions, we have used the
+notational convenience introduced above. 
 
 It is sometimes difficult to write out expressions because they rapidly become
 very long. An alternative approach is to write the syntax tree of the expression
@@ -129,6 +131,48 @@ And here is another way of constructing the same expression:
 \end{equation*}
 On the face of it, these two are not the same construction, hence not the same
 expression. 
+
+
+** Reduction relations
+
+We now introduce a reduction relation, $\Rightarrow$, on expressions, specifically
+on expressions that have the form $e\circ f$. The cases break down by the form
+of $e$.
+
+First, the easy cases. In the following, $e$ and $f$ are any expressions.  We
+have omitted the types in these relations because the whole expression after the
+reduction necessarily has the same type as the expression before the
+reduction. In the last reduction, this meanse that the type of $\unit$ has to
+change. However, there's only one way it can changed to make the types compose
+properly, so we have not bothered to write it in.
+\begin{equation*}
+\begin{split}
+\id \circ e   &\Rightarrow e \\
+e \circ \id    &\Rightarrow e \\
+\unit \circ e &\Rightarrow \unit. 
+\end{split}
+\end{equation*}
+
+Then there is the rule that says that pairing, followed by immediate projection
+onto one element, can be replaced by that element:
+\begin{equation*}
+\begin{split}
+\fst\circ \left\langle e, f\right\rangle &\Rightarrow e \\
+\snd\circ \left\langle e, f\right\rangle &\Rightarrow f.
+\end{split}
+\end{equation*}
+
+Then pairing “eats up” expression to its right:
+\begin{equation*}
+\left\langle e, f\right\rangle \circ g \Rightarrow 
+\left\langle e\circ g, f\circ g\right\rangle. 
+\end{equation*}
+
+Finally, a rule that in the end sorts out associativity:
+\begin{equation*}
+
+\end{equation*}
+ 
 
 It turns out that we can fix all these problems by introducing an equivalence
 relation on well-typed programs. First, we simply don't indicate the order of
