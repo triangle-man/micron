@@ -155,20 +155,18 @@ Second, there are the rules for pairing:
   \left\langle \fst, \snd \right\rangle &\termstep \id \\ 
   \fst \circ \left\langle e, f\right\rangle &\termstep e \\
   \snd \circ \left\langle e, f\right\rangle &\termstep f \\
-  \left\langle \left\langle e, f \right\rangle, g\right\rangle &\termstep
-\left\langle e, \left\langle f, g \right\rangle \right\rangle \\
-    \left\langle e\circ g, f\circ g \right\rangle &\termstep \left\langle e, f \right\rangle \circ g \\ 
+  \left\langle e\circ g, f\circ g \right\rangle &\termstep \left\langle e, f \right\rangle \circ g \\ 
 \end{split}
 \end{equation*}
 
 And finally rules for $\unit$ (which is rather like an empty pair):
 \begin{equation*}
   \begin{split}
-    \fst &\circ \unit \termstep \unit \\
-    \snd &\circ \unit \termstep \unit \\
-    \unit &\circ e \termstep \unit \\
-    &\left\langle \unit, e \right\rangle \termstep e \\
-    &\left\langle e, \unit \right\rangle \termstep e. \\
+    \fst \circ \unit &\termstep \unit \\
+    \snd \circ \unit &\termstep \unit \\
+    \unit \circ e &\termstep \unit \\
+    \left\langle \unit, e \right\rangle &\termstep e \\
+    \left\langle e, \unit \right\rangle &\termstep e. \\
   \end{split}
 \end{equation*}
 
