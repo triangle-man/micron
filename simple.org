@@ -9,6 +9,9 @@
 #+latex_header: \DeclareMathOperator{\src}{source}
 #+latex_header: \DeclareMathOperator{\trg}{target}
 #+latex_header: \DeclareMathOperator{\typ}{type}
+#+latex_header: \newcommand{\termstep}{\Rightarrow}
+#+latex_header: \newcommand{\step}{\Rightarrow^1}
+#+latex_header: \newcommand{\steps}{\Rightarrow^*}
 
 * Categories
 
@@ -26,49 +29,37 @@ is a pair of types, which we write separated by an arrow, such as $P\to
 Q$. If $P\to Q$ is an arrow type, we call $P$ the /source/ and $Q$ the /target/.
 
 A program is now “a thing with an arrow type.” The syntax of programs is defined
-by terms and expressions. A /term/ is one of the following, where $e_1$ and
-$e_2$ are arbitrary expressions (which will be defined in a minute):
+by terms and expressions. A /term/ is one of the following:
 \begin{equation*}
-  t \equiv \unit 
-  \mid \id 
-  \mid \fst
-  \mid \snd
-  \mid \langle e_1, e_2 \rangle
-  \mid e_2 \circ e_1.
+\begin{split}
+  t \equiv &\id : P \to P \\
+  &\mid \fst : P \times Q \to P \\
+  &\mid \snd : P \times Q \to Q \\
+  &\mid \unit : P \to \top \\
+\end{split}
+\end{equation*}
+
+An expression is either a term or a construction from other expressions. When
+constructing expressions, it is necessary to follow certain rules regarding the
+arrow types of the subexpressions and the arrow type of the constructed
+expression. Specifically, an /expression/ is:
+\begin{equation*}
+\begin{split}
+  e \equiv &\;t \\
+    &\mid \langle e_1 : P \to Q, e_2 : P \to R \rangle : P \to Q \times R \\
+    &\mid (e_2 : Q \to R) \circ (e_1 : P \to Q) : P \to R.
+\end{split}
 \end{equation*}
 The intended reading of the last rule, involving a juxtaposition of two
 expressions, is the composition of two functions, the the second following the
 first. (But note that there are no functions here.)
 
-An /expression/ is defined by a term together with an arrow type, which we write
-as, say, $t : P\to Q$. If $e = t : P\to Q$ is an expression, then
-$\typ(e)\equiv P\to Q$. 
-
-One more bit of notational convenience. If $e$ is an expression, then we also
-write $e : P\to Q$ to mean “$e$ is an expression such that $\typ(e) = P\to
-Q$. 
-
-Not all combinations of terms and arrow types are expresssions; the following
-defines which constructions are allowed:
-\begin{equation*}
-\begin{split}
-  e \equiv &\unit : P \to \top \\
-    &\mid \id : P \to P \\
-    &\mid \fst : P \times Q \to P \\
-    &\mid \snd : P \times Q \to Q \\
-    &\mid \langle e_1 : P \to Q, e_2 : P \to R \rangle : P \to Q \times R \\
-    &\mid (e_2 : Q \to R) \circ (e_1 : P \to Q) : P \to R.
-\end{split}
-\end{equation*}
 You can see that the rules say how to line up the types to make sensible
 combinations. For example, the rule for $\id$ says that “identities map a type
 to itself.” (Not really, because terms aren't maps and types aren't sets; but
 that's the sort of thing one is supposed to imagine.) As another example, the
 rule for composition says that the target of $e_1$ has to be the source of $e_2$,
 which is very sensible if you want to compose functions.
-
-In the last two productions in the definition of expressions, we have used the
-notational convenience introduced above. 
 
 It is sometimes difficult to write out expressions because they rapidly become
 very long. An alternative approach is to write the syntax tree of the expression
@@ -135,107 +126,136 @@ expression.
 
 ** Reduction relations
 
-We now introduce a reduction relation, $\Rightarrow$, on expressions, specifically
-on expressions that have the form $e\circ f$. The cases break down by the form
-of $e$.
+We now introduce a reduction relation on expressions. We shall do this in three
+stages. First, we define a reduction relation, $\termstep$, on certain kinds of
+expression: it applies “only at the top level.” Then we introduce a reduction
+relation, $\step$, by allowing $\termstep$ to act on any subexpression of an
+expression. Finally, we take the transitive closure of $\step$ and show that it
+has nice properties.
 
-First, the easy cases. In the following, $e$ and $f$ are any expressions.  We
-have omitted the types in these relations because the whole expression after the
-reduction necessarily has the same type as the expression before the
-reduction. In the last reduction, this meanse that the type of $\unit$ has to
-change. However, there's only one way it can changed to make the types compose
-properly, so we have not bothered to write it in.
+We start with $\termstep$. There are three kinds of expression: /terms/ ($\id$,
+$\fst$, and so on); /pairs/ (like $\left\langle e, f \right\rangle$); and
+/compositions/ (such as $e\circ f$). The reduction relation $\termstep$ acts on
+certain pairs and compositions.  
+
+*** One-step reduction of terms
+
+First, there are the fundamental rules of identity and associativity:
 \begin{equation*}
 \begin{split}
-\id \circ e   &\Rightarrow e \\
-e \circ \id    &\Rightarrow e \\
-\unit \circ e &\Rightarrow \unit. 
+        \id \circ e &\termstep e \\
+        e \circ \id &\termstep e \\
+        (e \circ f) \circ g &\termstep e \circ (f \circ g).
 \end{split}
 \end{equation*}
 
-Then there is the rule that says that pairing, followed by immediate projection
-onto one element, can be replaced by that element:
+Second, there are the rules for pairing:
 \begin{equation*}
 \begin{split}
-\fst\circ \left\langle e, f\right\rangle &\Rightarrow e \\
-\snd\circ \left\langle e, f\right\rangle &\Rightarrow f.
+  \left\langle \fst, \snd \right\rangle &\termstep \id \\ 
+  \fst \circ \left\langle e, f\right\rangle &\termstep e \\
+  \snd \circ \left\langle e, f\right\rangle &\termstep f \\
+  \left\langle \left\langle e, f \right\rangle, g\right\rangle &\termstep
+\left\langle e, \left\langle f, g \right\rangle \right\rangle \\
+    \left\langle e\circ g, f\circ g \right\rangle &\termstep \left\langle e, f \right\rangle \circ g \\ 
 \end{split}
 \end{equation*}
 
-Then pairing “eats up” expression to its right:
+And finally rules for $\unit$ (which is rather like an empty pair):
 \begin{equation*}
-\left\langle e, f\right\rangle \circ g \Rightarrow 
-\left\langle e\circ g, f\circ g\right\rangle. 
+  \begin{split}
+    \fst &\circ \unit \termstep \unit \\
+    \snd &\circ \unit \termstep \unit \\
+    \unit &\circ e \termstep \unit \\
+    &\left\langle \unit, e \right\rangle \termstep e \\
+    &\left\langle e, \unit \right\rangle \termstep e. \\
+  \end{split}
 \end{equation*}
 
-Finally, a rule that in the end sorts out associativity:
+Note that, with the exception of this last rule, did not need to add the arrow
+types because all the types “just work out”. In the last reduction, the type of
+$\unit$ has to change.[fn:1] However, there's only one way it can be changed to
+make the types compose properly, so we have not bothered to write it in.
+
+*** One-step reduction of expressions
+
+The relation “$\termstep$” acts “at the top-level.” Now define $\step$ as
+follows: $e\step f$ if there is some subexpression, $\alpha$ of $e$, and some
+reduction $\alpha\termstep\beta$, and $f$ is obtained from $e$ by substituting
+$\beta$ for $\alpha$. In other words, we have $e\step f$ if there is any
+subexpression in $e$ to which some reduction rule applies and such that, by
+applying it, we obtain $f$. 
+
+*** Transitive closure of $\step$
+
+Having reduced $e\step f$, we might, of course, proceed to look for, and apply,
+some other reduction, and then another, and continue in this manner until either
+we get stuck or we get bored. To capture this notion, we write $e\steps f$ if
+there is /any/ finite sequence $e\step e'\step e''\step\dotsb f$. (Note that by
+“any” we mean to include the empty sequence, so that, in particular $e\steps e$
+for any $e$.)
+
+Now we claim:
+
+1. $\steps$ is a partial ordering on expressions;
+2. $\steps$ has the /confluence property/: if $e\steps f$ and $e\steps g$, then
+   there exists an $h$ such that $f\steps h$ and $g\steps h$.
+
+To show (1), we must show (i) reflexivity: $e\steps e$; (ii) transitivity: if
+$e\steps f$ and $f\steps g$ then $e\steps g$; and (ii) anti-symmetry: if
+$e\steps f$ and $f\steps e$ then $e = f$.
+
+Reflexivity and transitivity follow immediately from the definition of $\steps$
+as a possible-empty chain of $\step$: the concatenation of the two chains in the
+premise is the chain required; and the empty chain relates an expression to
+itself. 
+
+To see how we might show (iii), note that each reducible expression has a
+“left-hand-side” and a “right-hand-side,” (left and right of the $\circ$
+operator, that is) and that each reduction by $\termstep$ seems to make the
+left-hand-side “smaller.” If we could capture this idea, reflexivity would
+follow, because each reduction would reduce the “size” of the expression, hence
+$\step$ would necessarily be “one way only.”
+
+We therefore introduce a comparison of expressions. 
+
+THIS SECTION USES "TERM" FOR ANY OF $\fst$, $\snd$, $\id$, $\unit$, OR
+$\left\langle e, e\right\rangle$; AND "COMPEX" FOR $e\circ e$. 
+
+The rules are as follows. First, the “atomic” ones, 
 \begin{equation*}
+\begin{split}
+x &\leqslant x    \qquad\text{for any expression $x$}, \\
+\id &\leqslant t  \qquad\text{for any term $t$}, \\
+t &\leqslant e    \qquad\text{for any term $t$ and compex $e$}, 
+\end{split}
+\end{equation*} 
 
-\end{equation*}
- 
-
-It turns out that we can fix all these problems by introducing an equivalence
-relation on well-typed programs. First, we simply don't indicate the order of
-composition in terms. For example, we write ~snd fst fst~ rather than ~(snd fst)
-fst~ or ~snd (fst fst)~.
-
-Second, we introduce a reduction relation on terms, with the following two
-rules:
+Next, the “derived” ones. For compexes: 
 \begin{equation*}
-  t\; \text{\tt id} \Rightarrow t
-  \quad\text{and}\quad
-  \text{\tt id}\; t \Rightarrow t 
+  e_1 \circ e_2 \leqslant f_1 \circ f_2 \quad\text{if and only if}\quad
+\begin{cases}
+  &\text{either $e_1 = f_1$ and $e_2 \leqslant f_2$,} \\
+  &\text{or $e_1 \leqslant f_1$ (and $e_1 \neq f_1$).}
+\end{cases}
 \end{equation*}
-for any term $t$;
+
+And finally for pairs:
 \begin{equation*}
-  \text{\tt unit}\; t \Rightarrow \text{\tt unit}
+  \left\langle e_1, f_1 \right\rangle \leqslant \left\langle e_2, f_2 \right\rangle 
+  \; \text{if and only if} \;
+  e_1 \leqslant e_2 \;\text{and}\; f_1 \leqslant f_2.
 \end{equation*}
-for any term $t$; and 
-\begin{equation*}
-  \text{\tt fst}\;(t_1, t_2) \Rightarrow t_1 
-  \qquad\text{and}\qquad
-  \text{\tt snd}\;(t_1, t_2) \Rightarrow t_2 
-\end{equation*}
-for any terms $t_1$ and $t_2$. (Note that these relations on terms are all
-arrow type--preserving and so are also reduction relations on expressions.) 
 
 
-* OLD
-
-We note that, if some expression has a well-typed program, then it is always
-possible to deduce it. (A separate question, not addressed here, is whether one
-can always assign an arrow type to a term to produce a well-typed program.)
-
-To see this, consider an expression $e = t:P\to Q$, where $t$ is a term and $P$
-and $Q$ are types. If $t$ is one of the “built-in” terms, ~fst~, ~snd~, ~id~, or
-~unit~, then $P$ and $Q$ must have the appropriate forms for those types and we
-are done. Otherwise, $t$ is either a product or a composition. If it is a
-product, then we must have $t = (r, s)$ for some $r$ and $s$ and, in addition,
-$Q = R\times S$ for some $R$ and $S$. We may therefore assign arrow types to $r$
-and $s$ as $r : P\to R$ and $s : P\to S$. 
-
-On the other hand, if $t$ is a composition, then by associativity, it must be of
-the form 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
 
 
 
 
 * Footnotes
 
-[fn:1] Jean-Yves Girard, /Proofs and Types/ (available from
-http://paultaylor.eu/stable/prot.pdf).  
+[fn:1] In the jargon, it is said that $\unit$ is instantiated “at” some other type.
+
+ 
+
+
