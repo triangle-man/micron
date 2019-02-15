@@ -4,7 +4,7 @@
 #+latex_header: \usepackage{ebproof}
 #+latex_header: \DeclareMathOperator{\unit}{\text{\tt unit}}
 #+latex_header: \DeclareMathOperator{\id}{\text{\tt id}}
-#+latex_header: \DeclareMathOperator{\fst}{\text{\tt fst}}
+#+latex_header: \newcommand{\fst}{\text{\tt fst}}
 #+latex_header: \DeclareMathOperator{\snd}{\text{\tt snd}}
 #+latex_header: \DeclareMathOperator{\src}{source}
 #+latex_header: \DeclareMathOperator{\trg}{target}
@@ -125,6 +125,124 @@ expression.
 
 
 ** Reduction relations
+
+It is clear what to do. We must introduce an equality relation between
+constructions that are supposed to be equal and then consider only equivalence
+classes. Expressions that are supposed to be equal are as follows, and follow
+from the categorical definitions.
+
+The meaning of identity: 
+\begin{equation*}
+\begin{prooftree}[center=false]
+  \hypo{\id : Q \to Q}
+  \hypo{e : P \to Q}
+  \infer2{\id \circ e : P \to Q}
+\end{prooftree}
+\;=\;
+\begin{prooftree}[center=false]
+  \hypo{e : P \to Q}
+  \hypo{\id : P \to P}
+  \infer2{e \circ \id : P \to Q}
+\end{prooftree}
+\;=\;
+e : P \to Q.
+\end{equation*}
+Associativity:
+\begin{equation*}
+\begin{prooftree}[center=false]
+  \hypo{e : R \to S}
+  \hypo{f : Q \to R}
+  \infer2{e \circ f : Q \to S}
+  \hypo{g : P \to Q}
+  \infer2{(e \circ f) \circ g : P \to S}
+\end{prooftree}
+  \; = \;
+\begin{prooftree}[center=false]
+  \hypo{e : R \to S}
+  \hypo{f : Q \to R}
+  \hypo{g : P \to Q}
+  \infer2{f \circ g : P \to R}
+  \infer2{e \circ (f \circ g) : P \to S}.
+\end{prooftree}
+\end{equation*}
+The meaning of pairing:
+\begin{equation*}
+  \begin{prooftree}[center=false]
+    \hypo{\fst : X \times Y \to X}
+    \hypo{e : P \to X}
+    \hypo{f : P \to Y}
+    \infer2{\left\langle e, f \right\rangle : P \to X \times Y}
+    \infer2{\fst \circ \left\langle e, f\right\rangle : P \to X}
+  \end{prooftree}
+  \;=\;
+  e : P \to X
+\end{equation*}
+and
+\begin{equation*}
+  \begin{prooftree}[center=false]
+    \hypo{\snd : X \times Y \to Y}
+    \hypo{e : P \to X}
+    \hypo{f : P \to Y}
+    \infer2{\left\langle e, f \right\rangle : P \to X \times Y}
+    \infer2{\snd \circ \left\langle e, f\right\rangle : P \to Y}
+  \end{prooftree}
+  \;=\;
+  f : P \to Y.
+\end{equation*}
+Uniqueness of mediating arrow in pairing (CHECK!):
+\begin{equation*}
+\begin{prooftree}[center=false]
+  \hypo{\fst : X \times Y \to X}
+  \hypo{e : P \to X \times Y}
+  \infer2{\fst \circ e : P \to X}
+  \hypo{\snd : X \times Y \to Y}
+  \hypo{e : P \to X \times Y}
+  \infer2{\snd \circ e : P \to Y}
+  \infer2{\left\langle \fst \circ e, \snd \circ e\rangle : P \to X \times Y}
+\end{prooftree}
+\; = \;
+e : P \to X \times Y. 
+\end{equation*}
+Interaction of composition and pairing:
+\begin{equation*}
+\begin{split}
+  \left\langle e\circ g, f\circ g \right\rangle &= \left\langle e, f \right\rangle \circ g \\ 
+\end{split}
+\end{equation*}
+Meaning of the empty product:
+\begin{equation*}
+\begin{split}
+  \fst \circ \unit &= \unit \\
+  \snd \circ \unit &= \unit \\
+\end{split}
+\end{equation*}
+Uniqueness of $\unit$:
+\begin{equation*}
+\begin{split}
+  \unit \circ e &= \unit \\
+\end{split}
+\end{equation*}
+Uniqueness of $\top$ (although, actually, maybe we don't want this?)
+\begin{equation*}
+\begin{split}
+  \left\langle \unit, e \right\rangle &= e \\
+  \left\langle e, \unit \right\rangle &= e. \\
+\end{split}
+\end{equation*}
+
+However, we're now in a pickle. To determine whether two terms are equal, we
+must find a transformation of one that leads to the other, using the rules
+above. But these rules are not deterministic: if we make the wrong choices, we
+could end up going round in circles forever.
+
+What is normally done is to /orient/ these equivalences so that they may only be
+applied “in one direction.” That takes care of some of the
+non-determinism. However, we still have to check (a) that the process will
+eventually stop (this is called normalisation) and (b) that two terms that are
+equal by the equivalence relation will eventually reduce to the same form (this
+is called confluence).
+
+It turns out this is not as easy as I had assumed.
 
 We now introduce a reduction relation on expressions. We shall do this in three
 stages. First, we define a reduction relation, $\termstep$, on certain kinds of
