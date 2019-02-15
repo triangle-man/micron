@@ -2,10 +2,10 @@
 #+startup: showall
 #+options: toc:nil
 #+latex_header: \usepackage{ebproof}
-#+latex_header: \DeclareMathOperator{\unit}{\text{\tt unit}}
-#+latex_header: \DeclareMathOperator{\id}{\text{\tt id}}
+#+latex_header: \newcommand{\unit}{\text{\tt unit}}
+#+latex_header: \newcommand{\id}{\text{\tt id}}
 #+latex_header: \newcommand{\fst}{\text{\tt fst}}
-#+latex_header: \DeclareMathOperator{\snd}{\text{\tt snd}}
+#+latex_header: \newcommand{\snd}{\text{\tt snd}}
 #+latex_header: \DeclareMathOperator{\src}{source}
 #+latex_header: \DeclareMathOperator{\trg}{target}
 #+latex_header: \DeclareMathOperator{\typ}{type}
@@ -191,23 +191,37 @@ and
 \end{equation*}
 Uniqueness of mediating arrow in pairing (CHECK!):
 \begin{equation*}
-\begin{prooftree}[center=false]
-  \hypo{\fst : X \times Y \to X}
-  \hypo{e : P \to X \times Y}
-  \infer2{\fst \circ e : P \to X}
-  \hypo{\snd : X \times Y \to Y}
-  \hypo{e : P \to X \times Y}
-  \infer2{\snd \circ e : P \to Y}
-  \infer2{\left\langle \fst \circ e, \snd \circ e\rangle : P \to X \times Y}
-\end{prooftree}
-\; = \;
-e : P \to X \times Y. 
+    \begin{prooftree}[center=false]
+      \hypo{\fst : X \times Y \to X}
+      \hypo{e : P \to X \times Y}
+      \infer2{\fst \circ e : P \to X}
+      \hypo{\snd : X \times Y \to Y}
+      \hypo{e : P \to X \times Y}
+      \infer2{\snd \circ e : P \to Y}
+      \infer2{\left\langle \fst \circ e, \snd \circ e\rangle : P \to X \times Y}
+    \end{prooftree} 
+    =
+    e : P \to X \times Y. 
 \end{equation*}
 Interaction of composition and pairing:
 \begin{equation*}
-\begin{split}
-  \left\langle e\circ g, f\circ g \right\rangle &= \left\langle e, f \right\rangle \circ g \\ 
-\end{split}
+  \begin{prooftree}
+    \hypo{e}
+    \hypo{g}
+    \infer2{e \circ g}
+    \hypo{f}
+    \hypo{g}
+    \infer2{f \circ g}
+    \infer2{\left\langle e\circ g, f\circ g \right\rangle}
+  \end{prooftree}
+  \;=\;
+  \begin{prooftree}
+    \hypo{e}
+    \hypo{f}
+    \infer2{\left\langle e, f \right\rangle}
+    \hypo{g}
+    \infer2{\left\langle e, f \right\rangle \circ g}   
+  \end{prooftree}
 \end{equation*}
 Meaning of the empty product:
 \begin{equation*}
