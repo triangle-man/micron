@@ -21,23 +21,20 @@
 #+latex_header: \newcommand{\steps}{\twoheadrightarrow}
 #+latex_header: \newcommand{\height}[1]{\left\lceil#1\right\rceil}
 
-** Categories
-
- TBD.
-
-* Expressions
+* Formalism
 
 Here is what you might call a “programming language,” if you were being
 charitable.
+
+** Syntax
 
 Fix, once and for all, a countable collection of /atomic types/, $A, B, C,
 \dotsc$. A /type/ is either an atomic type, or $\top$, or $\bot$, or $P\times
 Q$, or $P+Q$, where $P$ and $Q$ are types. (In code, we write ~P * Q~ for
 $P\times Q$.) An /arrow type/ is a pair of types, which we write separated by an
-arrow, such as $P\to Q$. If $P\to Q$ is an arrow type, we call $P$ the /source/
-and $Q$ the /target/.
+arrow, such as $P\to Q$. Note that an arrow type is not a type! 
 
-A program is now “a thing with an arrow type.” The syntax of programs is defined
+A program is “a thing with an arrow type.” The syntax of programs is defined
 by terms and expressions. A /term/ is one of the following:
 \begin{equation*}
 \begin{split}
@@ -63,117 +60,23 @@ expression. Specifically, an /expression/ is:
     \hypo{e_2 : Q \to R}
     \hypo{e_1 : P \to Q}
     \infer2{e_2 \circ e_1 : P \to R}
-  \end{prooftree}} \\
+  \end{prooftree}}\qquad\text{(composition)} \\
   &\mid
   {\begin{prooftree}
     \hypo{e_1 : P \to Q}
     \hypo{e_2 : P \to R}
     \infer2{\langle e_1, e_2\rangle : P \to Q \times R}
-  \end{prooftree}} \\
+  \end{prooftree}}\qquad\text{(product)} \\
   &\mid            
   {\begin{prooftree}
     \hypo{e_1 : Q \to P}
     \hypo{e_2 : R \to P}
     \infer2{\left\{ e_1; e_2 \right\} : Q + R \to P}
-  \end{prooftree}}.
+  \end{prooftree}}\qquad\text{(coproduct)}.
 \end{split}
 \end{equation*}
 
-The intended reading of the second rule, involving a juxtaposition of two
-expressions, is the composition of two functions, the the second following the
-first. (But note that there are no functions here.)
-
-You can see that the rules say how to line up the types to make sensible
-combinations. For example, the rule for $\id$ says that “identities map a type
-to itself.” (Not really, because terms aren't maps and types aren't sets; but
-that's the sort of thing one is supposed to imagine.) As another example, the
-rule for composition says that the target of $e_1$ has to be the source of $e_2$,
-which is very sensible if you want to compose functions.
-
-It is sometimes difficult to write out expressions because they rapidly become
-very long. An alternative approach is to write the syntax tree of the expression
-as an actual tree. Each node in the tree is an expression with the types erased,
-except for the type of the whole expression; the children of that node
-demonstrate that it is an allowed expression by exhibiting the types of its
-constituents.
-
-For example, consider the following expression
-\begin{equation*}
-\bigl(\fst : A \times \top \to A\bigr) \circ \bigl( \langle \id :A \to A, \unit : A \to \top \rangle : A \to A \times \top\bigr) : A \to A.
-\end{equation*}
-And now here is the same thing written in the tree notation. Note that parent
-nodes are written below their child nodes; so we start at the top with the
-innermost (atomic) expressions.
-\begin{equation*}
-  \begin{prooftree}
-    \hypo{\fst : A \times \top \to A}
-    \hypo{\id : A \to A}
-    \hypo{\unit : A \to \top}
-    \infer2{\langle \id, \unit\rangle : A \to A \times \top}
-    \infer2{\fst \circ {\langle \id, \unit \rangle : A \to A}}
-  \end{prooftree}
-\end{equation*} 
-
-The tree notation conveys the same information as the expression but is easier
-to read. In particular, it is easier to check that the types are all of the
-correct form for each way of constructing an expression. One can almost get away
-with just looking at the final conclusion of the tree but one should remember
-that expressions come with types for all subexpressions.
-
-Well, now, it /almost/ looks like we have a category. The definition would go
-something like this: let the objects be types, and let the morphisms be
-expressions. A morphism $e:P\to Q$ is just an expression whose arrow type is
-$P\to Q$. To compose morphisms, use the rule of composition.
-
-However, we do not, thereby, obtain a category. One must check the category
-axioms and these in general do not hold. For example, the only reasonable
-candidate for an identity morphism is $\id$ but the expression $\id:A\to A$
-is patently not the same expression as $(\id:A\to A)\circ(\id:A\to A)$.
-
-A separate problem is that composition (of expressions) is not
-associative. Consider the following expression (written in tree notation):
-\begin{equation*}\footnotesize
-  \begin{prooftree}
-    \hypo{\snd : A \times B \to B}
-    \hypo{\fst : (A \times B) \times C \to A \times B}
-    \hypo{\fst : ((A \times B) \times C) \times D \to (A \times B) \times C}
-    \infer2{\fst\circ\fst : ((A \times B) \times C) \times D \to A \times B}
-    \infer2{\snd \circ (\fst\circ\fst) : ((A \times B) \times C) \times D \to B}
-    \end{prooftree}.   
-\end{equation*}
-And here is another way of constructing the same expression:
-\begin{equation*}\footnotesize
-  \begin{prooftree}
-    \hypo{\snd : A \times B \to B}
-    \hypo{\fst : (A \times B) \times C \to A \times B}
-    \infer2{\snd\circ\fst : (A \times B) \times C \to B}
-    \hypo{\fst : ((A \times B) \times C) \times D \to (A \times B) \times C}
-    \infer2{(\snd\circ\fst)\circ\fst : ((A \times B) \times C) \times D \to B}
-    \end{prooftree}.   
-\end{equation*}
-
-On the face of it, these two are not the same construction, hence not the same
-expression. 
-
-
-* Reduction relations
-
-** One-step reduction
-
-The big plan to fix these problems is as follows. First, we define a partial
-order, $\steps$, on expressions. Roughly speaking, $e\steps f$ if $e$ and $f$
-are “the same expression” and $f$ is “simpler than” $e$. It will turn out that
-for every expression $e$, there is a unique, simplest expression $p$; /i.e./, an
-expression such that $e\steps p$ and if $p'$ is such that $p\steps p'$ then
-$p'=p$. Such a simplest expression will be called a /program/. Programs will
-have all the right properties.
-
-That's the big plan. To get there, there are three steps. We begin by defining a
-relation $\termstep$ that says when one expression is “slightly simpler” than
-another. Then we increase the options for $\termstep$ by allowing it to act on
-any subexpression of an expression; that produces a new relation,
-$\step$. Finally we take the transitive closure of $\step$ to obtain the desired
-relation $\steps$.
+** One-step reduction relation
 
 The relation $\termstep$ is between /expressions;/ that is, between trees
 showing how to construct the expression. However, it's easier to write down just
@@ -216,7 +119,7 @@ e \circ (f \circ g) \termstep (e \circ f) \circ g
 \end{split}
 \end{equation}
 
-\begin{equation}\tag{$\termstep$if}\label{redn:if}
+\begin{equation}\tag{$\termstep$case}\label{redn:case}
     e\circ \left\{f; g \right\} \termstep \left\{ e\circ f; e\circ g \right\} 
 \end{equation}
 
@@ -232,6 +135,93 @@ e \circ (f \circ g) \termstep (e \circ f) \circ g
 \begin{equation}\tag{$\termstep$fail}
     e\circ\fail \termstep \fail.
 \end{equation}
+
+** Values
+
+There are no values as yet. A “value of type $X$” /would/ be an expression with
+arrow type $\top\to X$. Were we to have a value $v : \top\to X$ and an
+expression $p : X\to Y$ we would of course obtain an expression $p\circ v :
+\top\to Y$ which is a value of type $Y$.
+
+** Example programs
+
+*** Swap
+
+A program that “swaps the values of a pair $X\times X$” (if there were values) is:
+\begin{equation*}
+\left\langle \snd, \fst \right\rangle : X\times X \to X\times X.
+\end{equation*}
+
+Here is a program of arrow type $A\times X + B\times X\to (A+B)\times X$:
+\begin{equation*}
+\begin{prooftree}
+
+  \hypo{
+    \hypo{
+\infer2{\left\{ \left\langle \inl , \snd\right\rangle ;
+  \left\langle \inr, \snd\right\rangle \right\}
+\end{prooftree}
+\end{equation*}
+
+
+
+
+* COMMENT Discussion
+
+It almost looks like we have a category. The definition would go something like this: let the objects
+be types, and let the morphisms be expressions. A morphism $e:P\to Q$ is just an expression whose
+arrow type is $P\to Q$. To compose morphisms, use the rule of composition.
+
+However, we do not, thereby, obtain a category. One must check the category
+axioms and these in general do not hold. For example, the only reasonable
+candidate for an identity morphism is $\id$ but the expression $\id:A\to A$
+is patently not the same expression as $(\id:A\to A)\circ(\id:A\to A)$.
+
+A separate problem is that composition (of expressions) is not
+associative. Consider the following expression (written in tree notation):
+\begin{equation*}\footnotesize
+  \begin{prooftree}
+    \hypo{\snd : A \times B \to B}
+    \hypo{\fst : (A \times B) \times C \to A \times B}
+    \hypo{\fst : ((A \times B) \times C) \times D \to (A \times B) \times C}
+    \infer2{\fst\circ\fst : ((A \times B) \times C) \times D \to A \times B}
+    \infer2{\snd \circ (\fst\circ\fst) : ((A \times B) \times C) \times D \to B}
+    \end{prooftree}.   
+\end{equation*}
+And here is another way of constructing the same expression:
+\begin{equation*}\footnotesize
+  \begin{prooftree}
+    \hypo{\snd : A \times B \to B}
+    \hypo{\fst : (A \times B) \times C \to A \times B}
+    \infer2{\snd\circ\fst : (A \times B) \times C \to B}
+    \hypo{\fst : ((A \times B) \times C) \times D \to (A \times B) \times C}
+    \infer2{(\snd\circ\fst)\circ\fst : ((A \times B) \times C) \times D \to B}
+    \end{prooftree}.   
+\end{equation*}
+
+On the face of it, these two are not the same construction, hence not the same
+expression. 
+
+
+* COMMENT Reduction relations
+
+** One-step reduction
+
+The big plan to fix these problems is as follows. First, we define a partial
+order, $\steps$, on expressions. Roughly speaking, $e\steps f$ if $e$ and $f$
+are “the same expression” and $f$ is “simpler than” $e$. It will turn out that
+for every expression $e$, there is a unique, simplest expression $p$; /i.e./, an
+expression such that $e\steps p$ and if $p'$ is such that $p\steps p'$ then
+$p'=p$. Such a simplest expression will be called a /program/. Programs will
+have all the right properties.
+
+That's the big plan. To get there, there are three steps. We begin by defining a
+relation $\termstep$ that says when one expression is “slightly simpler” than
+another. Then we increase the options for $\termstep$ by allowing it to act on
+any subexpression of an expression; that produces a new relation,
+$\step$. Finally we take the transitive closure of $\step$ to obtain the desired
+relation $\steps$.
+
 
 I was going to add other equations that state, roughly, that $\top$ is the empty
 product. But the typing doesn't work out. For example, one might imagine adding
@@ -251,8 +241,8 @@ reductions as written, we get:
 \begin{split}
   \left\langle\snd,\fst\right\rangle \circ \left\langle \snd,\fst\right\rangle
   &\termstep
-  \bigl\langle\snd \circ \left\langle\snd, \fst\right\rangle,
-  \fst \circ \left\langle\snd, \fst\right\rangle\bigr\rangle \\
+  \bigl\langle\snd \circ \left\langle\snd, \fst\right\rangle\bigr\rangle,
+  \fst \circ \left\langle\snd, \fst\right\rangle \\
   &\termstep
   \left\langle\fst, \snd\right\rangle \\
   &\termstep
@@ -261,6 +251,37 @@ reductions as written, we get:
 \end{equation*}
 
 ** Example programs
+
+*** $\top$ as unit for products
+
+We have $\fst : A\times\top \to A$. Can we write a program $\text{\tt times1} : A \to A\times \top$? 
+\begin{equation*}
+\text{\tt times1} = 
+  \begin{prooftree}
+    \hypo{\id : A \to A}
+    \hypo{\unit : A \to \top}
+    \infer2{\left\langle \id, \unit\right\rangle : A \to A \times \top}
+  \end{prooftree}
+\end{equation*} 
+
+Furthermore, 
+\begin{equation*}
+\begin{split}
+  \fst \circ \text{\tt times1} &= \fst \circ \left\langle \id, \unit\right\rangle \\
+  &\termstep \id,
+\end{split}
+\end{equation*} 
+and
+\begin{equation*}
+\begin{split}
+  \text{\tt times1} \circ \fst &= \left\langle \id, \unit\right\rangle \circ \fst \\
+  &\termstep \left\langle \id \circ \fst, \unit \circ \fst \right\rangle \\
+  &\termstep \left\langle \fst, \unit \right\rangle \qquad\text{(where now $\unit : A\times\top\to\top$)}\\
+  &= \left\langle \fst, \snd \right\rangle \\
+  &\termstep \id.
+\end{split}
+\end{equation*} 
+
 
 *** Swap-if
 
@@ -278,15 +299,30 @@ with an arrow type:
 The final expression is going to have to look something like:
 \begin{equation*}
   \begin{prooftree}
-    \hypo{
-\infer2{\left\{e; f\right} : A \times C + B \times C}
+    \hypo{e : \text{??} \to A \times C}
+    \infer1{\inl \circ e : A \times C \to A \times C + B \times C}
+    \hypo{f : \text{??} \to B \times C}
+    \infer1{\inr \circ f : B \times C \to A \times C + B \times C}
+    \infer2{\left\{e; f\right\} : A \times C + B \times C}
 \end{prooftree}
 \end{equation*} 
 
-
+Whereas the start of the expression must decompose the pair:
 \begin{equation*}
-\left\{\text{\tt swap}; \id\right\} \circ \fst 
+  \begin{prooftree}
+    \hypo{\fst : (A + B) \times C \to A + B}
+    \infer1{\vdots : A + B \to \text{??}}
+  \end{prooftree}
+\quad\text{and}\quad
+ \begin{prooftree}
+    \hypo{\snd : (A + B) \times C \to C}
+    \infer1{\vdots : C \to \text{??}}
+  \end{prooftree}
 \end{equation*} 
+and I just don't see how to connect these two up. The problem here is that I can't make a program
+“multiply by $C$.” That is, I can't curry $\left\langle \_, \snd \right\rangle$.
+
+Can I curry “add $C$”? 
 
 
 ** Notions of size
