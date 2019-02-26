@@ -2,20 +2,28 @@
 #+startup: showall
 #+options: toc:nil
 #+latex_header: \usepackage{ebproof}
-#+latex_header: \newcommand{\unit}{\text{\tt unit}}
+#+latex_header: \usepackage{booktabs}
+#+latex_header: \newcommand{\eqln}{\asymp}
+#+latex_header: \usepackage{ebproof}
+
 #+latex_header: \newcommand{\id}{\text{\tt id}}
+#+latex_header: \newcommand{\unit}{\text{\tt unit}}
+#+latex_header: \newcommand{\fail}{\text{\tt fail}}
 #+latex_header: \newcommand{\fst}{\text{\tt fst}}
 #+latex_header: \newcommand{\snd}{\text{\tt snd}}
+#+latex_header: \newcommand{\inl}{\text{\tt inl}}
+#+latex_header: \newcommand{\inr}{\text{\tt inr}}
 #+latex_header: \DeclareMathOperator{\src}{source}
 #+latex_header: \DeclareMathOperator{\trg}{target}
 #+latex_header: \DeclareMathOperator{\typ}{type}
-#+latex_header: \newcommand{\termstep}{\Rightarrow}
-#+latex_header: \newcommand{\step}{\Rightarrow^1}
-#+latex_header: \newcommand{\steps}{\Rightarrow^*}
+#+latex_header: \newcommand{\termstep}{\rightsquigarrow}
+#+latex_header: \newcommand{\step}{\rightarrowtail}
+#+latex_header: \newcommand{\steps}{\twoheadrightarrow}
+#+latex_header: \newcommand{\height}[1]{\left\lceil#1\right\rceil}
 
-* Categories
+** Categories
 
-TBD.
+ TBD.
 
 * Expressions
 
@@ -23,34 +31,55 @@ Here is what you might call a “programming language,” if you were being
 charitable.
 
 Fix, once and for all, a countable collection of /atomic types/, $A, B, C,
-\dotsc$. A /type/ is either an atomic type, or $\top$, or $P\times Q$, where $P$
-and $Q$ are types. (In code, we write ~P * Q~ for $P\times Q$.) An /arrow type/
-is a pair of types, which we write separated by an arrow, such as $P\to
-Q$. If $P\to Q$ is an arrow type, we call $P$ the /source/ and $Q$ the /target/.
+\dotsc$. A /type/ is either an atomic type, or $\top$, or $\bot$, or $P\times
+Q$, or $P+Q$, where $P$ and $Q$ are types. (In code, we write ~P * Q~ for
+$P\times Q$.) An /arrow type/ is a pair of types, which we write separated by an
+arrow, such as $P\to Q$. If $P\to Q$ is an arrow type, we call $P$ the /source/
+and $Q$ the /target/.
 
 A program is now “a thing with an arrow type.” The syntax of programs is defined
 by terms and expressions. A /term/ is one of the following:
 \begin{equation*}
 \begin{split}
-  t \equiv &\id : P \to P \\
+  t \equiv &\hphantom{\mid} \id : P \to P \\
   &\mid \fst : P \times Q \to P \\
   &\mid \snd : P \times Q \to Q \\
-  &\mid \unit : P \to \top \\
+  &\mid\inl : P \to P + Q \\
+  &\mid\inr : Q \to P + Q \\
+  &\mid\unit : P \to \top \\
+  &\mid\fail : \bot \to P.
 \end{split}
 \end{equation*}
-
 An expression is either a term or a construction from other expressions. When
 constructing expressions, it is necessary to follow certain rules regarding the
 arrow types of the subexpressions and the arrow type of the constructed
 expression. Specifically, an /expression/ is:
+
 \begin{equation*}
 \begin{split}
   e \equiv &\;t \\
-    &\mid \langle e_1 : P \to Q, e_2 : P \to R \rangle : P \to Q \times R \\
-    &\mid (e_2 : Q \to R) \circ (e_1 : P \to Q) : P \to R.
+  &\mid
+  {\begin{prooftree}
+    \hypo{e_2 : Q \to R}
+    \hypo{e_1 : P \to Q}
+    \infer2{e_2 \circ e_1 : P \to R}
+  \end{prooftree}} \\
+  &\mid
+  {\begin{prooftree}
+    \hypo{e_1 : P \to Q}
+    \hypo{e_2 : P \to R}
+    \infer2{\langle e_1, e_2\rangle : P \to Q \times R}
+  \end{prooftree}} \\
+  &\mid            
+  {\begin{prooftree}
+    \hypo{e_1 : Q \to P}
+    \hypo{e_2 : R \to P}
+    \infer2{\left\{ e_1; e_2 \right\} : Q + R \to P}
+  \end{prooftree}}.
 \end{split}
 \end{equation*}
-The intended reading of the last rule, involving a juxtaposition of two
+
+The intended reading of the second rule, involving a juxtaposition of two
 expressions, is the composition of two functions, the the second following the
 first. (But note that there are no functions here.)
 
@@ -87,7 +116,9 @@ innermost (atomic) expressions.
 
 The tree notation conveys the same information as the expression but is easier
 to read. In particular, it is easier to check that the types are all of the
-correct form for each way of construction an expression.
+correct form for each way of constructing an expression. One can almost get away
+with just looking at the final conclusion of the tree but one should remember
+that expressions come with types for all subexpressions.
 
 Well, now, it /almost/ looks like we have a category. The definition would go
 something like this: let the objects be types, and let the morphisms be
@@ -120,16 +151,224 @@ And here is another way of constructing the same expression:
     \infer2{(\snd\circ\fst)\circ\fst : ((A \times B) \times C) \times D \to B}
     \end{prooftree}.   
 \end{equation*}
+
 On the face of it, these two are not the same construction, hence not the same
 expression. 
 
 
-** Reduction relations
+* Reduction relations
 
-It is clear what to do. We must introduce an equality relation between
-constructions that are supposed to be equal and then consider only equivalence
-classes. Expressions that are supposed to be equal are as follows, and follow
-from the categorical definitions.
+** One-step reduction
+
+The big plan to fix these problems is as follows. First, we define a partial
+order, $\steps$, on expressions. Roughly speaking, $e\steps f$ if $e$ and $f$
+are “the same expression” and $f$ is “simpler than” $e$. It will turn out that
+for every expression $e$, there is a unique, simplest expression $p$; /i.e./, an
+expression such that $e\steps p$ and if $p'$ is such that $p\steps p'$ then
+$p'=p$. Such a simplest expression will be called a /program/. Programs will
+have all the right properties.
+
+That's the big plan. To get there, there are three steps. We begin by defining a
+relation $\termstep$ that says when one expression is “slightly simpler” than
+another. Then we increase the options for $\termstep$ by allowing it to act on
+any subexpression of an expression; that produces a new relation,
+$\step$. Finally we take the transitive closure of $\step$ to obtain the desired
+relation $\steps$.
+
+The relation $\termstep$ is between /expressions;/ that is, between trees
+showing how to construct the expression. However, it's easier to write down just
+the “root” of each tree—the expression /without/ all the arrow types, noting
+that once the types on the “more complex” side are known then the types on the
+“simpler” side follow.
+
+In the following, $e$, $f$, and $g$ are arbitrary expressions. 
+
+\begin{equation}\tag{$\termstep$id}\
+  \begin{split}
+    e \circ \id &\termstep e \\ 
+    \id \circ e &\termstep e
+  \end{split}
+\end{equation}
+
+\begin{equation}\tag{$\termstep$assoc}\label{redn:assoc}
+e \circ (f \circ g) \termstep (e \circ f) \circ g
+\end{equation}
+
+\begin{equation}\tag{$\termstep$pair}
+\begin{split}
+  \fst \circ \left\langle e, f\right\rangle &\termstep e \\
+  \snd \circ \left\langle e, f\right\rangle &\termstep f \\
+  \left\langle\fst \circ e, \snd \circ e \right\rangle &\termstep e \\
+  \left\langle\fst, \snd\right\rangle &\termstep \id     
+\end{split}
+\end{equation}
+
+\begin{equation}\tag{$\termstep$and}\label{redn:and}
+    \left\langle e, f \right\rangle \circ g \termstep \left\langle e\circ g, f\circ g \right\rangle 
+\end{equation}
+
+\begin{equation}\tag{$\termstep$sum}
+\begin{split}
+  \left\{ e; f\right\} \circ \inl &\termstep e \\
+  \left\{ e; f\right\} \circ \inr &\termstep f \\
+  \left\{e \circ \inl; e \circ \inr \right\} &\termstep e \\
+  \left\{\inl; \inr\right\} &\termstep \id     
+\end{split}
+\end{equation}
+
+\begin{equation}\tag{$\termstep$if}\label{redn:if}
+    e\circ \left\{f; g \right\} \termstep \left\{ e\circ f; e\circ g \right\} 
+\end{equation}
+
+\begin{equation}\tag{$\termstep$distr}\label{redn:distr}
+  \left\langle e, f\right\rangle \circ \left\{g; h \right\} \termstep
+  \left\{ \left\langle e, f \right\rangle \circ g; \left\langle e, f\right\rangle \circ h \right\} 
+\end{equation}         
+
+\begin{equation}\tag{$\termstep$unit}
+    \unit \circ e \termstep \unit
+\end{equation}
+
+\begin{equation}\tag{$\termstep$fail}
+    e\circ\fail \termstep \fail.
+\end{equation}
+
+I was going to add other equations that state, roughly, that $\top$ is the empty
+product. But the typing doesn't work out. For example, one might imagine adding
+$\fst\circ\unit \termstep \unit$. However, $\fst\circ\unit$ is not an expression,
+because the source of the arrow type of $\fst$ must be of the form $X\times Y$,
+whereas the target of $\unit$ is $\top$. Or one might think of adding
+$\left\langle \unit, e \right\rangle \termstep e$. However, if $e$, the right-hand
+side, has type $P\to Q$ then the left-hand side has type $(\top\times P)\to Q$.
+
+The relations \ref{redn:abs} seem odd. Why aren't they the other way round?
+Surely $\left\langle e, f\right\rangle\circ g$ is simpler than $\left\langle
+e\circ g, f\circ g\right\rangle$? However, I'm pretty sure this is correct,
+otherwise it would not be possible to reduce $\left\langle
+\snd,\fst\right\rangle \circ\left\langle \snd,\fst\right\rangle$. With the
+reductions as written, we get:
+\begin{equation*}
+\begin{split}
+  \left\langle\snd,\fst\right\rangle \circ \left\langle \snd,\fst\right\rangle
+  &\termstep
+  \bigl\langle\snd \circ \left\langle\snd, \fst\right\rangle,
+  \fst \circ \left\langle\snd, \fst\right\rangle\bigr\rangle \\
+  &\termstep
+  \left\langle\fst, \snd\right\rangle \\
+  &\termstep
+  \id.
+\end{split}
+\end{equation*}
+
+** Example programs
+
+*** Swap-if
+
+Take an ~(A + B) * (C * C)~. If the first element is an ~A~, return ~id~ on ~C*C~,
+otherwise return ~swap~ on ~C*C~. Type signature:
+\begin{equation*}
+(A + B)\times(C\times D) \to (C\times C).
+\end{equation*} 
+
+This appears to be impossible to write. Consider trying to find an expression
+with an arrow type:
+\begin{equation*}
+(A + B)\times C \to A\times C + B\times C.
+\end{equation*} 
+The final expression is going to have to look something like:
+\begin{equation*}
+  \begin{prooftree}
+    \hypo{
+\infer2{\left\{e; f\right} : A \times C + B \times C}
+\end{prooftree}
+\end{equation*} 
+
+
+\begin{equation*}
+\left\{\text{\tt swap}; \id\right\} \circ \fst 
+\end{equation*} 
+
+
+** Notions of size
+
+In the end, we need to show that the reduction relation $\steps$ satisfies two
+properties:
+
+1. Any sequence $e\steps f\steps\dotsb$ terminates in a finite number of
+   steps (this property is called /strong normalisation/); and
+
+2. If $e\steps f$ and $e\steps g$ then there is some $h$ such that $f\steps h$
+   and $g\steps h$ (this property is called /confluence/).
+
+We start with normalisation. The usual approach is to assign to each expression
+some notion of size and to show that each application of $\termstep$ strictly
+reduces this size; and that this size has a lower bound. 
+
+Consider the following assignment of a positive integer to each expression. The
+/height/ of an atomic term ($\fst$, $\snd$, $\unit$, or $\id$) is 1. The height
+of an expression $(e\circ f)$ is the sum of the heights of $e$ and $f$. The
+height of a pair $\left\langle e, f \right\rangle$ is the maximum of the
+heights of $e$ and $f$, plus one. Intuitively, the height of an expression is
+the number of arrows in the composition, except that you go the “long way round”
+for pairs, rather than “both ways round.”
+
+It's almost the case that height of an expression is strictly reduced by each
+application of $\termstep$. The exceptions are \ref{redn:assoc} and
+\ref{redn:abs}. Of these, \ref{redn:assoc} clearly doesn't increase the height,
+it just shifts it from the “right branch” to the “left branch”. And
+\ref{redn:abs} doesn't increase the height, either: it moves things “inside the
+pair.”
+
+*** Handwave
+
+I can't make these arguments precise yet. But it's pretty clear that reductions
+are “strict” (in the sense that you can never go round in a circle) and
+eventually terminate. Will revisit.
+
+** Compatible closure 
+
+The reduction $\termstep$ acts only at “top level.” But clearly we want to
+reduce any expression, even one that is a sub-part of another expression. A
+/context/ is an expression “with a hole”, where another expression might go. We
+can apply $\termstep$ to expressions “in context”. Thus, in reducing $e\circ f$,
+we might proceed by applying $\termstep$ to $e$ (if we can). We write $e\step f$
+if there is some context $C$, some subexpression $s$ of $e$ such that $e =
+C[s]$, if $s\termstep t$ and $f = C[t]$. 
+
+** Transitive closure of $\step$
+
+Having reduced $e\step f$, we might, of course, proceed to look for, and apply,
+some other reduction, and then another, and continue in this manner until either
+we get stuck or we get bored. To capture this notion, we write $e\steps f$ if
+there is /any/ finite sequence $e\step e'\step e''\step\dotsb f$. (Note that by
+“any” we mean to include the empty sequence, so that, in particular $e\steps e$
+for any $e$.)
+
+** Confluence
+
+It's also reasonably clear that if $e$ reduces (by $\termstep$) to $s$ one way
+and $t$ another, then you can just reduce the subexpression you reduced to get
+to $t$ to $s$ and the subexpression you reduced to get $s$ to $t$, and the
+result will be something smaller than either $s$ or $t$. Since the reduction is
+also strongly normalising, the same argument goes through for $\steps$, by doing
+the one-step confluence repeatedly. 
+
+ 
+
+
+
+
+
+
+
+
+* Footnotes
+
+[fn:1] In the jargon, it is said that $\unit$ is instantiated “at” some other type.
+
+ 
+
+* COMMENT OLD
 
 The meaning of identity: 
 \begin{equation*}
@@ -138,13 +377,13 @@ The meaning of identity:
   \hypo{e : P \to Q}
   \infer2{\id \circ e : P \to Q}
 \end{prooftree}
-\;=\;
+\;\eqln\;
 \begin{prooftree}[center=false]
   \hypo{e : P \to Q}
   \hypo{\id : P \to P}
   \infer2{e \circ \id : P \to Q}
 \end{prooftree}
-\;=\;
+\;\eqln\;
 e : P \to Q.
 \end{equation*}
 Associativity:
@@ -156,7 +395,7 @@ Associativity:
   \hypo{g : P \to Q}
   \infer2{(e \circ f) \circ g : P \to S}
 \end{prooftree}
-  \; = \;
+  \;\eqln\;
 \begin{prooftree}[center=false]
   \hypo{e : R \to S}
   \hypo{f : Q \to R}
@@ -174,7 +413,7 @@ The meaning of pairing:
     \infer2{\left\langle e, f \right\rangle : P \to X \times Y}
     \infer2{\fst \circ \left\langle e, f\right\rangle : P \to X}
   \end{prooftree}
-  \;=\;
+  \;\eqln\;
   e : P \to X
 \end{equation*}
 and
@@ -186,206 +425,55 @@ and
     \infer2{\left\langle e, f \right\rangle : P \to X \times Y}
     \infer2{\snd \circ \left\langle e, f\right\rangle : P \to Y}
   \end{prooftree}
-  \;=\;
+  \;\eqln\;
   f : P \to Y.
 \end{equation*}
 Uniqueness of mediating arrow in pairing (CHECK!):
 \begin{equation*}
-    \begin{prooftree}[center=false]
+\begin{gathered}
+  {\begin{prooftree}
       \hypo{\fst : X \times Y \to X}
       \hypo{e : P \to X \times Y}
       \infer2{\fst \circ e : P \to X}
       \hypo{\snd : X \times Y \to Y}
       \hypo{e : P \to X \times Y}
       \infer2{\snd \circ e : P \to Y}
-      \infer2{\left\langle \fst \circ e, \snd \circ e\rangle : P \to X \times Y}
-    \end{prooftree} 
-    =
-    e : P \to X \times Y. 
+      \infer2{\left\langle \fst \circ e, \snd \circ e \right\rangle : P \to X \times Y}
+  \end{prooftree}} \\ 
+\eqln 
+  e : P \to X \times Y. 
+\end{gathered}
 \end{equation*}
 Interaction of composition and pairing:
 \begin{equation*}
-  \begin{prooftree}
-    \hypo{e}
-    \hypo{g}
-    \infer2{e \circ g}
-    \hypo{f}
-    \hypo{g}
-    \infer2{f \circ g}
-    \infer2{\left\langle e\circ g, f\circ g \right\rangle}
-  \end{prooftree}
-  \;=\;
-  \begin{prooftree}
-    \hypo{e}
-    \hypo{f}
-    \infer2{\left\langle e, f \right\rangle}
-    \hypo{g}
-    \infer2{\left\langle e, f \right\rangle \circ g}   
-  \end{prooftree}
+  \begin{gathered}
+    {\begin{prooftree}
+        \hypo{e : Q \to X}
+        \hypo{g : P \to Q}
+        \infer2{e \circ g : P \to X}
+        \hypo{f : Q \to Y}
+        \hypo{g : P \to Q}
+        \infer2{f \circ g : P \to Y}
+        \infer2{\left\langle e\circ g, f\circ g \right\rangle : P \to X \times Y}
+    \end{prooftree}} \\
+ \eqln            
+       {\begin{prooftree}
+       \hypo{e : Q \to X}
+       \hypo{f : Q \to Y}
+       \infer2{\left\langle e, f \right\rangle : Q \to X \times Y}
+       \hypo{g : P \to Q}
+       \infer2{\left\langle e, f \right\rangle \circ g : P \to X \times Y}   
+       \end{prooftree}}
+  \end{gathered}
 \end{equation*}
-Meaning of the empty product:
-\begin{equation*}
-\begin{split}
-  \fst \circ \unit &= \unit \\
-  \snd \circ \unit &= \unit \\
-\end{split}
-\end{equation*}
+
 Uniqueness of $\unit$:
 \begin{equation*}
-\begin{split}
-  \unit \circ e &= \unit \\
-\end{split}
+  \begin{prooftree}[center=false]
+    \hypo{\unit : Q \to \top}
+    \hypo{e : P \to Q}
+    \infer2{\unit \circ e : P \to \top} 
+  \end{prooftree}
+\eqln \unit : P \to \top
 \end{equation*}
-Uniqueness of $\top$ (although, actually, maybe we don't want this?)
-\begin{equation*}
-\begin{split}
-  \left\langle \unit, e \right\rangle &= e \\
-  \left\langle e, \unit \right\rangle &= e. \\
-\end{split}
-\end{equation*}
-
-However, we're now in a pickle. To determine whether two terms are equal, we
-must find a transformation of one that leads to the other, using the rules
-above. But these rules are not deterministic: if we make the wrong choices, we
-could end up going round in circles forever.
-
-What is normally done is to /orient/ these equivalences so that they may only be
-applied “in one direction.” That takes care of some of the
-non-determinism. However, we still have to check (a) that the process will
-eventually stop (this is called normalisation) and (b) that two terms that are
-equal by the equivalence relation will eventually reduce to the same form (this
-is called confluence).
-
-It turns out this is not as easy as I had assumed.
-
-We now introduce a reduction relation on expressions. We shall do this in three
-stages. First, we define a reduction relation, $\termstep$, on certain kinds of
-expression: it applies “only at the top level.” Then we introduce a reduction
-relation, $\step$, by allowing $\termstep$ to act on any subexpression of an
-expression. Finally, we take the transitive closure of $\step$ and show that it
-has nice properties.
-
-We start with $\termstep$. There are three kinds of expression: /terms/ ($\id$,
-$\fst$, and so on); /pairs/ (like $\left\langle e, f \right\rangle$); and
-/compositions/ (such as $e\circ f$). The reduction relation $\termstep$ acts on
-certain pairs and compositions.  
-
-*** One-step reduction of terms
-
-First, there are the fundamental rules of identity and associativity:
-\begin{equation*}
-\begin{split}
-        \id \circ e &\termstep e \\
-        e \circ \id &\termstep e \\
-        (e \circ f) \circ g &\termstep e \circ (f \circ g).
-\end{split}
-\end{equation*}
-
-Second, there are the rules for pairing:
-\begin{equation*}
-\begin{split}
-  \left\langle \fst, \snd \right\rangle &\termstep \id \\ 
-  \fst \circ \left\langle e, f\right\rangle &\termstep e \\
-  \snd \circ \left\langle e, f\right\rangle &\termstep f \\
-  \left\langle e\circ g, f\circ g \right\rangle &\termstep \left\langle e, f \right\rangle \circ g \\ 
-\end{split}
-\end{equation*}
-
-And finally rules for $\unit$ (which is rather like an empty pair):
-\begin{equation*}
-  \begin{split}
-    \fst \circ \unit &\termstep \unit \\
-    \snd \circ \unit &\termstep \unit \\
-    \unit \circ e &\termstep \unit \\
-    \left\langle \unit, e \right\rangle &\termstep e \\
-    \left\langle e, \unit \right\rangle &\termstep e. \\
-  \end{split}
-\end{equation*}
-
-Note that, with the exception of this last rule, did not need to add the arrow
-types because all the types “just work out”. In the last reduction, the type of
-$\unit$ has to change.[fn:1] However, there's only one way it can be changed to
-make the types compose properly, so we have not bothered to write it in.
-
-*** One-step reduction of expressions
-
-The relation “$\termstep$” acts “at the top-level.” Now define $\step$ as
-follows: $e\step f$ if there is some subexpression, $\alpha$ of $e$, and some
-reduction $\alpha\termstep\beta$, and $f$ is obtained from $e$ by substituting
-$\beta$ for $\alpha$. In other words, we have $e\step f$ if there is any
-subexpression in $e$ to which some reduction rule applies and such that, by
-applying it, we obtain $f$. 
-
-*** Transitive closure of $\step$
-
-Having reduced $e\step f$, we might, of course, proceed to look for, and apply,
-some other reduction, and then another, and continue in this manner until either
-we get stuck or we get bored. To capture this notion, we write $e\steps f$ if
-there is /any/ finite sequence $e\step e'\step e''\step\dotsb f$. (Note that by
-“any” we mean to include the empty sequence, so that, in particular $e\steps e$
-for any $e$.)
-
-Now we claim:
-
-1. $\steps$ is a partial ordering on expressions;
-2. $\steps$ has the /confluence property/: if $e\steps f$ and $e\steps g$, then
-   there exists an $h$ such that $f\steps h$ and $g\steps h$.
-
-To show (1), we must show (i) reflexivity: $e\steps e$; (ii) transitivity: if
-$e\steps f$ and $f\steps g$ then $e\steps g$; and (ii) anti-symmetry: if
-$e\steps f$ and $f\steps e$ then $e = f$.
-
-Reflexivity and transitivity follow immediately from the definition of $\steps$
-as a possible-empty chain of $\step$: the concatenation of the two chains in the
-premise is the chain required; and the empty chain relates an expression to
-itself. 
-
-To see how we might show (iii), note that each reducible expression has a
-“left-hand-side” and a “right-hand-side,” (left and right of the $\circ$
-operator, that is) and that each reduction by $\termstep$ seems to make the
-left-hand-side “smaller.” If we could capture this idea, reflexivity would
-follow, because each reduction would reduce the “size” of the expression, hence
-$\step$ would necessarily be “one way only.”
-
-We therefore introduce a comparison of expressions. 
-
-THIS SECTION USES "TERM" FOR ANY OF $\fst$, $\snd$, $\id$, $\unit$, OR
-$\left\langle e, e\right\rangle$; AND "COMPEX" FOR $e\circ e$. 
-
-The rules are as follows. First, the “atomic” ones, 
-\begin{equation*}
-\begin{split}
-x &\leqslant x    \qquad\text{for any expression $x$}, \\
-\id &\leqslant t  \qquad\text{for any term $t$}, \\
-t &\leqslant e    \qquad\text{for any term $t$ and compex $e$}, 
-\end{split}
-\end{equation*} 
-
-Next, the “derived” ones. For compexes: 
-\begin{equation*}
-  e_1 \circ e_2 \leqslant f_1 \circ f_2 \quad\text{if and only if}\quad
-\begin{cases}
-  &\text{either $e_1 = f_1$ and $e_2 \leqslant f_2$,} \\
-  &\text{or $e_1 \leqslant f_1$ (and $e_1 \neq f_1$).}
-\end{cases}
-\end{equation*}
-
-And finally for pairs:
-\begin{equation*}
-  \left\langle e_1, f_1 \right\rangle \leqslant \left\langle e_2, f_2 \right\rangle 
-  \; \text{if and only if} \;
-  e_1 \leqslant e_2 \;\text{and}\; f_1 \leqslant f_2.
-\end{equation*}
-
-
-
-
-
-
-* Footnotes
-
-[fn:1] In the jargon, it is said that $\unit$ is instantiated “at” some other type.
-
- 
-
 
