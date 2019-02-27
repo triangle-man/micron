@@ -129,7 +129,7 @@ e \circ (f \circ g) \termstep (e \circ f) \circ g
 
 \begin{equation}\tag{$\termstep$distr}\label{redn:distr}
   \left\langle e, f\right\rangle \circ \left\{g; h \right\} \termstep
-  \left\{ \left\langle e, f \right\rangle \circ g; \left\langle e, f\right\rangle \circ h \right\} 
+  \bigl\langle e \circ \left\{ g; h \right\}, f \circ \left\{ g; h \right\} \bigr\rangle 
 \end{equation}         
 
 \begin{equation}\tag{$\termstep$unit}
@@ -164,7 +164,7 @@ things, strong normalisation would follow.
 
 The normal form of an expression is presumably products, of coproducts, of
 compositions of atomic terms. Normal forms do not contain compositions of products
-or coproducts: I believe this is what logicians called “cut elimintation” or
+or coproducts: I believe this is what logicians called “cut elimination” or
 /Hauptsatz/. 
 
 We clearly obtain a category. I believe we obtain the /free category with finite
