@@ -76,6 +76,10 @@ expression. Specifically, an /expression/ is:
 \end{split}
 \end{equation*}
 
+These constructions are basically typing judgments without the turnstile
+($\vdash$). There is no turnstile because there is no implication/lambdas, so
+nothing to be on the left of the turnstile.
+
 ** One-step reduction relation
 
 The relation $\termstep$ is between /expressions;/ that is, between trees
@@ -97,7 +101,7 @@ In the following, $e$, $f$, and $g$ are arbitrary expressions.
 e \circ (f \circ g) \termstep (e \circ f) \circ g
 \end{equation}
 
-\begin{equation}\tag{$\termstep$pair}
+\begin{equation}\tag{$\termstep$pair}\label{redn:pair}
 \begin{split}
   \fst \circ \left\langle e, f\right\rangle &\termstep e \\
   \snd \circ \left\langle e, f\right\rangle &\termstep f \\
@@ -129,19 +133,52 @@ e \circ (f \circ g) \termstep (e \circ f) \circ g
 \end{equation}         
 
 \begin{equation}\tag{$\termstep$unit}
-    \unit \circ e \termstep \unit
+\begin{split}
+  \unit \circ e &\termstep \unit \\
+  \left\langle \fst, \unit \right\rangle &\termstep \id \\
+  \left\langle \unit, \snd \right\rangle &\termstep \id.
+\end{split}
 \end{equation}
 
 \begin{equation}\tag{$\termstep$fail}
-    e\circ\fail \termstep \fail.
+\begin{split}
+  e \circ \fail &\termstep \fail \\
+  \left\{ \inl; \fail \right\} &\termstep \id \\
+  \left\{ \fail; \inr \right\} &\termstep \id
+\end{split}
 \end{equation}
+
+I believe it to be true, but cannot prove, that the compatible closure of
+$\termstep$ is strongly normalising and Church-Rosser. Church-Rosser would
+follow straighforwardly from strong normalisation and weak confluence (which
+looks reasonably clear).
+
+The reduction relation $\termstep$ is more complicated than the equivalence
+relation from which it is derived. For example, the last two reductions of
+\ref{redn:pair} would not be required. I believe I can construct, on the set of
+all expressions of the same arrow type, a partial order, such that the “correct
+direction” of the reduction at any step is towards smaller expressions (smaller
+in the partial order).[fn:2] However, although I believe it to be true, I cannot show
+that this partial order is strict and well-founded. If I could show these
+things, strong normalisation would follow.
+
+The normal form of an expression is presumably products, of coproducts, of
+compositions of atomic terms. Normal forms do not contain compositions of products
+or coproducts: I believe this is what logicians called “cut elimintation” or
+/Hauptsatz/. 
+
+We clearly obtain a category. I believe we obtain the /free category with finite
+products and coproducts/ on the set $\{A, B, \dotsc\}$.
 
 ** Values
 
 There are no values as yet. A “value of type $X$” /would/ be an expression with
 arrow type $\top\to X$. Were we to have a value $v : \top\to X$ and an
 expression $p : X\to Y$ we would of course obtain an expression $p\circ v :
-\top\to Y$ which is a value of type $Y$.
+\top\to Y$, which is a value of type $Y$.
+
+Since this language is the free category, we may “add in values” but continue
+computing with expressions as described.
 
 ** Example programs
 
@@ -149,19 +186,49 @@ expression $p : X\to Y$ we would of course obtain an expression $p\circ v :
 
 A program that “swaps the values of a pair $X\times X$” (if there were values) is:
 \begin{equation*}
-\left\langle \snd, \fst \right\rangle : X\times X \to X\times X.
+\text{\tt swap} = \left\langle \snd, \fst \right\rangle : X\times X \to X\times X.
 \end{equation*}
+
+Note that, as expected,
+\begin{equation*}
+\begin{split}
+  \text{\tt swap} \circ \text{\tt swap}
+  &= \left\langle \snd, \fst \right\rangle \circ \left\langle \snd, \fst \right\rangle \\
+  &\termstep \left\langle \snd \circ \left\langle \snd, \fst \right\rangle,
+  \fst \circ \left\langle \snd, \fst \right\rangle \right\rangle \\
+  &\termstep \left\langle \fst, \snd \right\rangle \\
+  &\termstep \id.
+  \end{split}
+\end{equation*}
+
+*** If
+
+Perhaps one would like a program that, “reads the first element of a pair; if it
+is one thing, the program does something to the second element; if it is another
+thing, the program does a different thing to the second element.” I believe one
+cannot write such a program using the language as described.
 
 Here is a program of arrow type $A\times X + B\times X\to (A+B)\times X$:
 \begin{equation*}
+\footnotesize
 \begin{prooftree}
-
-  \hypo{
-    \hypo{
-\infer2{\left\{ \left\langle \inl , \snd\right\rangle ;
-  \left\langle \inr, \snd\right\rangle \right\}
+ \hypo{\inl \circ \fst : A \times X \to A + B}
+ \hypo{\inr \circ \fst : B \times X \to A + B}
+ \infer2{\left\{ \inl \circ \fst, \inr \circ \fst \right\} : A \times X + B \times X \to A + B}
+ \hypo{\snd : A \times X \to X}
+ \hypo{\snd : B \times X \to X}
+ \infer2{\left\{ \snd, \snd \right\} : A \times X + B \times X \to X}
+ \infer2{\bigl\langle \left\{ \inl \circ \fst, \inr \circ \fst \right\},
+   \left\{ \snd, \snd \right\} \bigr\rangle : A \times X + B \times X \to (A + B) \times X}
 \end{prooftree}
 \end{equation*}
+Note that it is in normal form. 
+
+I believe that there is /no/ expression of type $(A+B)\times X \to A\times X +
+B\times X$. Roughly speaking, valid expressions can only reduce the number of
+pairs, and increase the number of sums. Even more roughly, the language as
+written can't curry products.
+
 
 
 
@@ -389,16 +456,12 @@ result will be something smaller than either $s$ or $t$. Since the reduction is
 also strongly normalising, the same argument goes through for $\steps$, by doing
 the one-step confluence repeatedly. 
 
- 
-
-
-
-
-
-
-
 
 * Footnotes
+
+[fn:2] There is a procedure in the literature for constructing reduction
+relations from equivalence classes, known as “Knuth-Bendix.” I don't understand
+it, but perhaps this is related to that.
 
 [fn:1] In the jargon, it is said that $\unit$ is instantiated “at” some other type.
 
