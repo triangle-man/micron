@@ -229,15 +229,28 @@ B\times X$. Roughly speaking, valid expressions can only reduce the number of
 pairs, and increase the number of sums. Even more roughly, the language as
 written can't curry products.
 
+* Currying
 
+What would it mean to curry products in this language?
+
+Usually, this means that we are given some expression $f:X\times Y\to P$ and we
+wish to write this as an expression from $X$ to something; where that something
+is “things with arrow type $Y\to P$.” But we can't do that since the only things
+with arrow types are expressions; and the targets of arrows are not expressions.
+
+Is there some equivalent involving currying coproducts?
+
+Presumably, we are given an expression $f:P\to X+Y$ and we try to write this as
+an expression from $P$ to something; where the something is “
 
 
 
 * COMMENT Discussion
 
-It almost looks like we have a category. The definition would go something like this: let the objects
-be types, and let the morphisms be expressions. A morphism $e:P\to Q$ is just an expression whose
-arrow type is $P\to Q$. To compose morphisms, use the rule of composition.
+It almost looks like we have a category. The definition would go something like
+this: let the objects be types, and let the morphisms be expressions. A morphism
+$e:P\to Q$ is just an expression whose arrow type is $P\to Q$. To compose
+morphisms, use the rule of composition.
 
 However, we do not, thereby, obtain a category. One must check the category
 axioms and these in general do not hold. For example, the only reasonable
