@@ -1,0 +1,42 @@
+#+title: Finite state machines
+#+startup: showall
+#+options: toc:nil
+#+latex_header: \DeclareMathOperator{\unit}{\text{\tt unit}}
+
+Fix, once and for all, an infinite set, $\mathcal{S}$, of /symbols/.
+
+A /history/ is a finite sequence of symbols from $\mathcal{S}$. A history is
+written $\alpha\to \beta\to \dotsb\to \gamma$. The empty history is written
+$\varepsilon$. For any history, $h$, we denote by $V(h)$ the set of all symbols
+occuring in its sequence.
+
+A /behaviour/ is a finite subset, $\mathcal{V}\subset \mathcal{S}$, and a set of
+histories, $H$, such that, for any history $h\in H$, we have
+$V(h)\in\mathcal{V}$. We call $\mathcal{V}$ the /vocabulary/ of $H$. In other
+words, a behaviour is a vocabulary together with a set of histories whose
+symbols are taken from that vocabulary. Note that it is not necessary by the
+definition that every symbol in the vocabulary occurs in some history in $H$.
+
+A history, with vocabulary $\mathcal{V}$, consisting of no sequences is denoted
+$\emptyset_\mathcal{V}$. The history consisting of no sequences and with an
+empty vocabulary is written simply $\emptyset$.
+
+The intended interpretation of all this is that a history is a particular
+computation of a state machine. A behaviour is the set of all possible
+computations of that machine. How might we combine behaviours?
+
+Let $M$ and $N$ be behaviours, with vocabularies $\mathcal{M}$ and $\mathcal{N}$
+respectively. By
+$$
+M; N
+$$ 
+we mean the behaviour whose histories consist of all those that can be obtained
+as a sequence in $M$ followed by a sequence in $N$ and whose vocabulary is
+$\mathcal{M}\cup \mathcal{N}$. 
+
+We have immediately that $M;\emptyset = \emptyset; M = M$ for any behaviour
+$M$. On the other hand, in general, $M; N\neq N; M$.
+
+
+
+
