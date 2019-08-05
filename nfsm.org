@@ -1,14 +1,16 @@
 #+title: Finite state machines
 #+startup: showall
 #+options: toc:nil
+#+latex_header: \newcommand{\sync}{\mathbin{\&}}
+#+latex_header: \newcommand{\then}{\mathbin{;}}
 #+latex_header: \DeclareMathOperator{\unit}{\text{\tt unit}}
 
 Fix, once and for all, an infinite set, $\mathcal{S}$, of /symbols/.
 
-A /history/ is a finite sequence of symbols from $\mathcal{S}$. A history is
-written $\alpha\to \beta\to \dotsb\to \gamma$. The empty history is written
-$\varepsilon$. For any history, $h$, we denote by $V(h)$ the set of all symbols
-occuring in its sequence.
+A /history/ is a finite sequence, $(\alpha_1, \alpha_2, \dotsc, \alpha_N)$ of
+symbols from $\mathcal{S}$. The empty history is written $\varepsilon$. For any
+history, $h$, we denote by $V(h)$ the set of all symbols occuring in its
+sequence.
 
 A /behaviour/ is a finite subset, $\mathcal{V}\subset \mathcal{S}$, and a set of
 histories, $H$, such that, for any history $h\in H$, we have
@@ -17,7 +19,7 @@ words, a behaviour is a vocabulary together with a set of histories whose
 symbols are taken from that vocabulary. Note that it is not necessary by the
 definition that every symbol in the vocabulary occurs in some history in $H$.
 
-A history, with vocabulary $\mathcal{V}$, consisting of no sequences is denoted
+A history consisting of no sequences, with vocabulary $\mathcal{V}$, is denoted
 $\emptyset_\mathcal{V}$. The history consisting of no sequences and with an
 empty vocabulary is written simply $\emptyset$.
 
@@ -28,14 +30,47 @@ computations of that machine. How might we combine behaviours?
 Let $M$ and $N$ be behaviours, with vocabularies $\mathcal{M}$ and $\mathcal{N}$
 respectively. By
 $$
-M; N
+M\then N
 $$ 
 we mean the behaviour whose histories consist of all those that can be obtained
 as a sequence in $M$ followed by a sequence in $N$ and whose vocabulary is
 $\mathcal{M}\cup \mathcal{N}$. 
 
-We have immediately that $M;\emptyset = \emptyset; M = M$ for any behaviour
-$M$. On the other hand, in general, $M; N\neq N; M$.
+We have immediately that $M\then\emptyset = \emptyset\then M = M$ for any
+behaviour $M$. On the other hand, in general, $M\then N\neq N\then M$. The
+semicolon operator is, however, associative: $M\then (N\then O) = (M\then
+N)\then O$.
+
+As a special case, suppose $M$ is a behaviour and $\alpha\in V(M)$ is a symbol
+in the vocabulary of $M$. Then 
+$$
+\alpha \to M
+$$
+is the behaviour consisting of all histories in $M$, prefixed with the symbol
+$\alpha$.
+
+Let $M$ and $N$ be behaviours as above. Then by
+$$
+M \sync N
+$$
+we mean the behaviour whose histories are those that occur in both $M$ and $N$,
+and whose vocabulary is $\mathcal{M}\cap \mathcal{N}$. It is immediate that
+$\emptyset\sync M = M\sync \emptyset = \emptyset$ for any $M$ and that $\sync$
+is associative and---unlike the semicolon operator---commutative. In addition it
+is idempotent: $M\sync M = M$.
+
+The following distributive laws are also straightforward to verify:
+$$
+P\then (M\sync N) = (P\then M)\sync (P\then N)\quad\text{and}\quad
+(M\sync N)\then P = (M\then P)\sync (N\then P).
+$$
+
+
+
+
+
+
+
 
 
 
