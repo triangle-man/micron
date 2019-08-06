@@ -24,22 +24,27 @@ computation of a state machine. A behaviour is the set of all possible
 computations of that machine. How might we combine behaviours?
 
 Let $M$ and $N$ be behaviours. By 
-$$ 
+\begin{equation}
 M\then N 
-$$ 
+\end{equation}
 (pronounced “$M$ then $N$”) we mean the behaviour whose histories consist of
 all those that can be obtained as a sequence in $M$ concatenated with a sequence
 in $N$. Note that the “semicolon operator” is associative, $M\then (N\then O) =
 (M\then N)\then O$, but not, in general, commutative.
 
 We have immediately that
-$$
+#+begin_src latex
+\begin{equation}
 M\then\unit = \unit\then M = M
-$$
+\end{equation}
+#+end_src
 and
-$$
-M\then\void = \void\then M = \void
-$$
+#+begin_src latex
+  \begin{equation}
+  M\then\void = \void\then M = \void
+  \end{equation}
+#+end_src
+
 for any behaviour $M$. 
 
 As a special case, suppose $M$ is a behaviour and $\alpha$ is a symbol. Then 
