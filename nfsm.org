@@ -3,74 +3,98 @@
 #+options: toc:nil
 #+latex_header: \newcommand{\sync}{\mathbin{\&}}
 #+latex_header: \newcommand{\then}{\mathbin{;}}
-#+latex_header: \DeclareMathOperator{\unit}{\text{\tt unit}}
+#+latex_header: \newcommand{\e}{\varepsilon}
+#+latex_header: \newcommand{\unit}{\mathbf{1}}
+#+latex_header: \newcommand{\void}{\mathbf{0}}
 
 Fix, once and for all, an infinite set, $\mathcal{S}$, of /symbols/.
 
 A /history/ is a finite sequence, $(\alpha_1, \alpha_2, \dotsc, \alpha_N)$ of
-symbols from $\mathcal{S}$. The empty history is written $\varepsilon$. For any
-history, $h$, we denote by $V(h)$ the set of all symbols occuring in its
-sequence.
+symbols from $\mathcal{S}$. The empty history is written $\e$. The
+/concatenation/ of two histories $h$ and $g$, written $hg$, consists of all the
+symbols of $h$ followed by all the symbols of $g$. Clearly $\e f = f\e = f$ for
+any history $f$.
 
-A /behaviour/ is a finite subset, $\mathcal{V}\subset \mathcal{S}$, and a set of
-histories, $H$, such that, for any history $h\in H$, we have
-$V(h)\in\mathcal{V}$. We call $\mathcal{V}$ the /vocabulary/ of $H$. In other
-words, a behaviour is a vocabulary together with a set of histories whose
-symbols are taken from that vocabulary. Note that it is not necessary by the
-definition that every symbol in the vocabulary occurs in some history in $H$.
-
-A history consisting of no sequences, with vocabulary $\mathcal{V}$, is denoted
-$\emptyset_\mathcal{V}$. The history consisting of no sequences and with an
-empty vocabulary is written simply $\emptyset$.
+A /behaviour/ is a set of histories. We denote the behaviour consisting of no
+sequences by $\void$ and the beheaviour consisting only of the empty
+sequence by $\unit$.
 
 The intended interpretation of all this is that a history is a particular
 computation of a state machine. A behaviour is the set of all possible
 computations of that machine. How might we combine behaviours?
 
-Let $M$ and $N$ be behaviours, with vocabularies $\mathcal{M}$ and $\mathcal{N}$
-respectively. By
-$$
-M\then N
+Let $M$ and $N$ be behaviours. By 
 $$ 
-we mean the behaviour whose histories consist of all those that can be obtained
-as a sequence in $M$ followed by a sequence in $N$ and whose vocabulary is
-$\mathcal{M}\cup \mathcal{N}$. 
+M\then N 
+$$ 
+(pronounced “$M$ then $N$”) we mean the behaviour whose histories consist of
+all those that can be obtained as a sequence in $M$ concatenated with a sequence
+in $N$. Note that the “semicolon operator” is associative, $M\then (N\then O) =
+(M\then N)\then O$, but not, in general, commutative.
 
-We have immediately that $M\then\emptyset = \emptyset\then M = M$ for any
-behaviour $M$. On the other hand, in general, $M\then N\neq N\then M$. The
-semicolon operator is, however, associative: $M\then (N\then O) = (M\then
-N)\then O$.
+We have immediately that
+$$
+M\then\unit = \unit\then M = M
+$$
+and
+$$
+M\then\void = \void\then M = \void
+$$
+for any behaviour $M$. 
 
-As a special case, suppose $M$ is a behaviour and $\alpha\in V(M)$ is a symbol
-in the vocabulary of $M$. Then 
+As a special case, suppose $M$ is a behaviour and $\alpha$ is a symbol. Then 
 $$
 \alpha \to M
-$$
-is the behaviour consisting of all histories in $M$, prefixed with the symbol
-$\alpha$.
+$$ is the behaviour consisting of all histories in $M$, prefixed
+with the symbol $\alpha$.
 
 Let $M$ and $N$ be behaviours as above. Then by
 $$
 M \sync N
 $$
-we mean the behaviour whose histories are those that occur in both $M$ and $N$,
-and whose vocabulary is $\mathcal{M}\cap \mathcal{N}$. It is immediate that
-$\emptyset\sync M = M\sync \emptyset = \emptyset$ for any $M$ and that $\sync$
-is associative and---unlike the semicolon operator---commutative. In addition it
-is idempotent: $M\sync M = M$.
-
-The following distributive laws are also straightforward to verify:
+we mean the behaviour whose histories are those that occur in both $M$ and
+$N$. The operator $\sync$ is associative and---unlike the semicolon
+operator---commutative. We also have the identities:
 $$
-P\then (M\sync N) = (P\then M)\sync (P\then N)\quad\text{and}\quad
-(M\sync N)\then P = (M\then P)\sync (N\then P).
+M\sync \void = \void\sync M = \void,
+$$
+and
+$$
+M \sync M = M.
 $$
 
+The distributive law only “works” in one direction:
+$$
+P\then (M\sync N) \subseteq (P\then M)\sync (P\then N) 
+$$
+
+This way is certainly true, because an element of the lhs is a history in $P$,
+say $p$, followed by a history in both $M$ and $N$, say $q$, so the history $pq$
+is certainly in both behaviours on the rhs.
+
+Conversely, suppose $P = \{\e, \alpha\}$, $M = \{\alpha, \alpha\beta\}$, and $N
+= \{\beta\}$. Then both $P\then M$ and $P\then N$ include the history
+$\alpha\beta$ (coming from $\e\,\alpha\beta$ in the one case and $\alpha\,\beta$
+in the other). But $M\sync N = \void$, so the lhs is empty. 
+
+Note that insisting that behaviours were prefix-closed would not have helped us
+here since the argument goes through with $P = \{\e, \alpha\}$, $M = \{\e, \alpha,
+\alpha\beta\}$, and $N = \{\e, \beta\}$. In this case $M\sync N = \{\e\}$, which
+still does not include $\alpha\beta$.
 
 
 
 
 
+* Todo
 
+** Prefix-closure
+
+What if the behaviours are prefix-closed? 
+
+- Does the distributive law now hold? (No.)
+- Should we redefine $\sync$ to be “intersect the prefix”? 
+- Are the operators strict (and do they preserve prefix-closure)?
 
 
 
