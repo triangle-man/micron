@@ -3,11 +3,15 @@
 #+options: toc:nil
 #+latex_header: \newcommand{\sync}{\mathbin{\&}}
 #+latex_header: \newcommand{\then}{\mathbin{;}}
+#+latex_header: \newcommand{\while}{\mid}
 #+latex_header: \newcommand{\e}{\varepsilon}
 #+latex_header: \newcommand{\unit}{\mathbf{1}}
 #+latex_header: \newcommand{\void}{\mathbf{0}}
+#+latex_header: \newcommand{\all}{\mathbf{U}}
 
-Fix, once and for all, an infinite set, $\mathcal{S}$, of /symbols/.
+* Definitions
+
+Fix, once and for all, a set, $\mathcal{S}$, of /symbols/.
 
 A /history/ is a finite sequence, $(\alpha_1, \alpha_2, \dotsc, \alpha_N)$ of
 symbols from $\mathcal{S}$. The empty history is written $\e$. The
@@ -15,9 +19,10 @@ symbols from $\mathcal{S}$. The empty history is written $\e$. The
 symbols of $h$ followed by all the symbols of $g$. Clearly $\e f = f\e = f$ for
 any history $f$.
 
-A /behaviour/ is a set of histories. We denote the behaviour consisting of no
-sequences by $\void$ and the beheaviour consisting only of the empty
-sequence by $\unit$.
+A /behaviour/ is a set of histories. Here are three special behaviours: 
+1. The behaviour consisting of no sequences, $\void$;
+2. The behaviour consisting only of the empty sequence, $\unit$. 
+3. The behaviour consisting of all possible finite sequences of symbols, $\all$.
 
 The intended interpretation of all this is that a history is a particular
 computation of a state machine. A behaviour is the set of all possible
@@ -29,49 +34,49 @@ M\then N
 \end{equation}
 (pronounced “$M$ then $N$”) we mean the behaviour whose histories consist of
 all those that can be obtained as a sequence in $M$ concatenated with a sequence
-in $N$. Note that the “semicolon operator” is associative, $M\then (N\then O) =
-(M\then N)\then O$, but not, in general, commutative.
+in $N$. Note that the “semicolon operator” is associative---$M\then (N\then O) =
+(M\then N)\then O$---but not, in general, commutative.
 
 We have immediately that
-#+begin_src latex
 \begin{equation}
 M\then\unit = \unit\then M = M
 \end{equation}
-#+end_src
 and
-#+begin_src latex
-  \begin{equation}
-  M\then\void = \void\then M = \void
-  \end{equation}
-#+end_src
-
-for any behaviour $M$. 
+\begin{equation}
+M\then\void = \void\then M = \void
+\end{equation}
+for any behaviour $M$, except the special case $\void\then \unit = \unit \then
+\void = \void$. 
 
 As a special case, suppose $M$ is a behaviour and $\alpha$ is a symbol. Then 
-$$
+\begin{equation}
 \alpha \to M
-$$ is the behaviour consisting of all histories in $M$, prefixed
+\end{eqiation}
+is the behaviour consisting of all histories in $M$, prefixed
 with the symbol $\alpha$.
 
 Let $M$ and $N$ be behaviours as above. Then by
-$$
+\begin{equation}
 M \sync N
-$$
+\end{equation}
 we mean the behaviour whose histories are those that occur in both $M$ and
 $N$. The operator $\sync$ is associative and---unlike the semicolon
 operator---commutative. We also have the identities:
-$$
+\begin{equation}
 M\sync \void = \void\sync M = \void,
-$$
-and
-$$
+\end{equation}
+\begin{equation}
+M\sync \all = \all\sync M = M,
+\end{equation}
+(as long as $M\neq \void$), and
+\begin{equation}
 M \sync M = M.
-$$
+\end{equation}
 
 The distributive law only “works” in one direction:
-$$
+\begin{equation}
 P\then (M\sync N) \subseteq (P\then M)\sync (P\then N) 
-$$
+\end{equation}
 
 This way is certainly true, because an element of the lhs is a history in $P$,
 say $p$, followed by a history in both $M$ and $N$, say $q$, so the history $pq$
@@ -87,7 +92,122 @@ here since the argument goes through with $P = \{\e, \alpha\}$, $M = \{\e, \alph
 \alpha\beta\}$, and $N = \{\e, \beta\}$. In this case $M\sync N = \{\e\}$, which
 still does not include $\alpha\beta$.
 
+Let $M$ and $N$ be behaviours as above. By
+\begin{equation}
+M\while N
+\end{equation}
+we mean the behaviour whose histories are the set union of the histories of $M$
+and $N$. The operator $\while$ is associative and commutative.
 
+We have the identities
+\begin{equation}
+M\while \void = \void\while M = M
+\end{equation}
+and
+\begin{equation}
+M\while M &= M,  
+\end{equation}
+as well as the laws
+\begin{equation}
+P \then (M\while N) = (P\then M) \while (P\then N),  
+\end{equation}
+and
+\begin{equation}
+P \sync (M\while N) = (P\sync M) \while (P\sync N).  
+\end{equation}
+To see the first of these laws, note that a history on the lhs is a history in
+$P$ followed by a history in either $M$ or $N$, say $m\in M$, wlog; whereas the
+rhs is either a history in $P$ followed by one in $M$ or a history in $P$
+followed by one in $M$.
+
+Let $P$ be a behaviour and $\alpha$ a symbol. The /derivative/ of $P$ with
+respect to $\alpha$, written $\partial_\alpha P$ is the set of all histories
+$(\beta_1, \beta_2, \dotsc)$ for which $(\alpha, \beta_1, \beta_2, \dotsc)$ is a
+history in $P$. That is, it is all histories beginning with $\alpha$, without
+the $\alpha$. 
+
+Given a finite sequence $(\alpha_1, \alpha_2, \dots, \alpha_N)$, the derivative
+$\partial_{\alpha_1\dotsb\alpha_N} P$ is defined as
+\begin{equation*}
+\partial_{\alpha_1\dotsb \alpha_N} P = \partial_{\alpha_N}\dotsb \partial_{\alpha_2}\partial_{\alpha_1} P,
+\end{equation*}
+where in addition we define $\partial_\e P = P$. Note that $\partial_\alpha \void = \void$ and, for
+any $\alpha\neq\e$, $\partial_\alpha\unit = \void$.
+
+If $M$ is a behaviour, a /prefix/ of $M$ is a history $p$ such that there exists
+a behaviour $S$ for which
+\begin{equation*}
+M = \{p\}\then S,
+\end{equation*} 
+where $\{p\}$ is the behaviour consisting solely of the history $p$. In other
+words, every history in $M$ begins with the sequence of symbols in $p$. 
+
+If $p$ and $p'$ are prefixes of $M$, then clearly either they are equal or one
+is a prefix of the another (in the sense of sequences). 
+
+
+* Interpretation
+
+A behaviour is the set of possible interactions of a program. A history is a
+particular interaction. When there is only one history possible, that is the
+execution path of the program.
+
+* Reduction relations
+
+- Any history is either $\e$, or $\alpha\to h$ for some symbol $\alpha$ and
+  history $h$.
+
+\begin{equation*}
+(\alpha \to M) \sync (\beta \to N) =
+  \begin{cases}
+    \alpha \to (M \sync N) & \text{if $\alpha = \beta$,} \\
+    \void & \text{otherwise.}
+  \end{cases}
+\end{equation*}
+
+- A behaviour consisting of a single history is called /linear:/ it represents a
+  deterministic program that just emits the symbols in that history.
+
+- Sometimes a behaviour is “linear up to a point”. The /longest common prefix/
+  of a behaviour is the longest history $h$ for which $h$ is a prefix of that
+  behaviour.
+
+
+
+
+
+* Temporal structure and causality
+
+Is there such a thing as non-deterministic behaviour? That would look like a
+machine that chose one path only to later find that it “ought” to have taken the
+other path. For example, if the environment offered two choices, and the machine
+took one of these, leading to a block later. However, here, we “ask the machine
+to take both options” so there is no block. 
+
+But if we may decline the choice at time 0 (effectively by “taking both
+choices”), that had better not block the /environment/ from progressing,
+otherwise everything will stop. The problem is that the environment doesn't, in
+general, provide us with all choices. 
+
+What does it mean for the behaviour of the environment to be “known up to time
+$\tau$”? Let $B$ be a behaviour and $E$ be the behaviour of the environment. I
+guess it means:
+
+1. For every $e \in E$ there is some $h \in B$ such that $h$ is a prefix of $e$;
+
+2. For every $h \in B$ there is some $e \in E$ such that $h$ is a prefix of $e$;
+
+3. There is an integer $\tau$ such that $|h| \geq \tau$ for every $h \in B$. 
+
+How do we say, “we don't yet know what specific behavoiur the environment will
+exhibit (let alone which history will be chosen) but we do know that it will be
+such as to ensure that there is also at least one possible history.”
+
+We need some notion (possibly the same as above) of “this behaviour has some
+other behaviour as a prefix.”
+
+
+* Usable programs
 
 
 
@@ -101,6 +221,10 @@ What if the behaviours are prefix-closed?
 - Should we redefine $\sync$ to be “intersect the prefix”? 
 - Are the operators strict (and do they preserve prefix-closure)?
 
+** Strictness
+
+- Should we redefine behaviour to include $\e$ always? 
+  No: some programs insist on a certain prefix.
 
 
 
