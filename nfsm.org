@@ -81,7 +81,7 @@ specific, then known history will not be rewritten.
 
 Now, given the increasing nature of the known history, an /efficient/ machine
 should not need to recompute the full history each time a new behaviour is
-given. Instead, it should take in the “change in behaviour” and output the “change
+given. Instead, it should take in the “change in behaviour” and compute the “change
 in the known history”.
 
 
