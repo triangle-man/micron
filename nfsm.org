@@ -8,34 +8,93 @@
 #+latex_header: \newcommand{\unit}{\mathbf{1}}
 #+latex_header: \newcommand{\void}{\mathbf{0}}
 #+latex_header: \newcommand{\all}{\mathbf{U}}
+#+latex_header: \DeclareMathOperator{\az}{alph}
+#+latex_header: \newcommand{\known}{\Omega}
 
-* Definitions
 
-Fix, once and for all, a set, $\mathcal{S}$, of /symbols/.
+* Behaviors
 
-A /history/ is a finite sequence, $(\alpha_1, \alpha_2, \dotsc, \alpha_N)$ of
-symbols from $\mathcal{S}$. The empty history is written $\e$. The
+Fix, once and for all, an infinite set, $\Sigma$, of /symbols/.
+
+A /history/ is a finite sequence, $(\sigma_1, \sigma_2, \dotsc, \sigma_N)$, of
+symbols from $\Sigma$. The empty history is written $\e$. The
 /concatenation/ of two histories $h$ and $g$, written $hg$, consists of all the
 symbols of $h$ followed by all the symbols of $g$. Clearly $\e f = f\e = f$ for
-any history $f$.
+any history $f$. The /alphabet/ of $h$, written $\az(h)$, is the set of all
+symbols that occur in $h$.
 
-A /behaviour/ is a set of histories. Here are three special behaviours: 
-1. The behaviour consisting of no sequences, $\void$;
-2. The behaviour consisting only of the empty sequence, $\unit$. 
-3. The behaviour consisting of all possible finite sequences of symbols, $\all$.
+A /behaviour/, $(B, \mathcal{A})$, is a set, $B$, of histories, together with a
+finite set of symbols $\mathcal{A}\subset\Sigma$, called the alphabet of $B$,
+such that $\az(h)\subset\mathcal{A}$ for every history $h\in B$. We often write
+$B$ for the behaviour where $\mathcal{A}$ is obvious.
+
+Here are three special behaviours: 
+1. The behaviour $\void = \emptyset$, consisting of no sequences.
+2. The behaviour $\unit = \{\e\}$, consisting only of the empty sequence.
+3. The behaviour $\all = \mathcal{A}^\ast$, consisting of all possible finite
+   sequences of symbols from some alphabet $\mathcal{A}$.[fn:kleene]
+
+A behaviour consisting of a single history describes a machine whose entire
+computation is known. If there are multiple histories then there are, in some
+sense, multiple possible paths of computation. Given two behaviours $P$ and $Q$
+we say that $P$ is /more specific/ than $Q$ if $P\subset Q$. That is, $P$ is
+more specific than $Q$ if every history in $P$ also occurs in $Q$.
+
+Later, we deal with behaviours that represent “the environemnt”, the part of the
+world external to the programs we write but which interact with those programs. 
 
 The intended interpretation of all this is that a history is a particular
 computation of a state machine. A behaviour is the set of all possible
-computations of that machine. How might we combine behaviours?
+computations of that machine. 
+
+It may be that some computation is known “only up to a point.” Let $h$ be a
+history. A /prefix/ of $h$ is a finite sequence of symbols $p$ such that $h =
+ps$ for some history $s$. If $p$ is a prefix of $h$ we write $p \leq h$.
+
+The /length/ of a sequence, $h$, is the number of symbols in the sequence, which
+we denote $|h|$.  For example, $|\e| = 0$. Note that $p \leq h$ implies $|p|
+\leq |h|$.
+
+For $B$ a behaviour, the /known history/ of $B$ is the longest sequence $p$ such
+that $p \leq h$ for all $h \in B$. The known history is unique: if $p$ and $q$
+are two known histories, then $p\leq q$ and $q\leq p$ implies that $|p| = |q|$,
+so if, say, $p=qs$, we must have $s = \e$. We write $\known(B)$ for the known
+history of $B$. 
+
+The situation we wish to understand is this. There is given to us an
+increasingly specific sequence of behaviours, $B_1 \supset B_2 \supset B_3
+\dotsb$. This sequence is typically the result of “the interaction of the
+machine with its environment up to time $t$.” We wish to compute the
+corresponding sequence of known histories, $\known(B_1), \known(B_2), \dotsc$,
+representing “the computation of the machine up to time $t$.”
+
+The known history is supposed to be “known.” What we mean by this is that a
+later evolution of the behaviour should not change the known history. Luckily,
+we have the following trivial result: For behaviours $P$ and $Q$,
+\begin{equation}
+  P \supset Q \Rightarrow \known(P) \leq \known(Q).
+\end{equation}
+(This follows, because if $\Omega(P)$ is a prefix of every history in $P$, and
+$Q$ is a subset of $P$, then $\Omega(P)$ must also be a prefix of every history
+in $Q$.) In other words, as long as the sequence of behaviours is increasingly
+specific, then known history will not be rewritten.
+
+Now, given the increasing nature of the known history, an /efficient/ machine
+should not need to recompute the full history each time a new behaviour is
+given. Instead, it should take in the “change in behaviour” and output the “change
+in the known history”.
+
+
+
+* Behaviour algebra
 
 Let $M$ and $N$ be behaviours. By 
 \begin{equation}
 M\then N 
 \end{equation}
-(pronounced “$M$ then $N$”) we mean the behaviour whose histories consist of
-all those that can be obtained as a sequence in $M$ concatenated with a sequence
-in $N$. Note that the “semicolon operator” is associative---$M\then (N\then O) =
-(M\then N)\then O$---but not, in general, commutative.
+(pronounced “$M$ then $N$”) we mean the behaviour whose histories consist of all
+those that can be obtained as a sequence in $M$ concatenated with a sequence in
+$N$. Note that the “semicolon operator” is associative but not commutative.
 
 We have immediately that
 \begin{equation}
@@ -51,7 +110,7 @@ for any behaviour $M$, except the special case $\void\then \unit = \unit \then
 As a special case, suppose $M$ is a behaviour and $\alpha$ is a symbol. Then 
 \begin{equation}
 \alpha \to M
-\end{eqiation}
+\end{equation}
 is the behaviour consisting of all histories in $M$, prefixed
 with the symbol $\alpha$.
 
@@ -105,7 +164,7 @@ M\while \void = \void\while M = M
 \end{equation}
 and
 \begin{equation}
-M\while M &= M,  
+M\while M = M,  
 \end{equation}
 as well as the laws
 \begin{equation}
@@ -206,6 +265,23 @@ such as to ensure that there is also at least one possible history.”
 We need some notion (possibly the same as above) of “this behaviour has some
 other behaviour as a prefix.”
 
+The general idea is:
+- The environment is specified as a behaviour, $E_t$;
+- We compute the intersection of $E_t$ with the machine's behaviour, to get
+  $O_t$ ($O$ for output).
+- We compute, in particular, the longest common prefix of $O_t$, say $h_t$. 
+- A new environment is specified, $E_{t+1}$, such that
+\begin{equation*}
+E_{t+1} \subset E_t.
+\end{equation*}
+- We compute $O_{t+1}$, and thus $h_{t+1}$. 
+- We note that we can write $h_{t+1}$ as $h_{t+1} = h_t \then s$ for some $s$,
+  and we “emit” $s$.
+
+** What's left?
+
+What's left is to specify the ways of writing down behaviours and the
+computation on these of the previous steps. 
 
 * Usable programs
 
@@ -226,5 +302,14 @@ What if the behaviours are prefix-closed?
 - Should we redefine behaviour to include $\e$ always? 
   No: some programs insist on a certain prefix.
 
+** Non-determinism
 
+- “Compile” behaviours for “parallel machines”. Then, when the result runs on
+  only one machine, run it. 
+
+* Footnotes
+
+[fn:kleene] I've used the Kleene star without introducing it.
+
+  
 
