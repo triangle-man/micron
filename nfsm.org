@@ -16,205 +16,323 @@
 
 Fix, once and for all, an infinite set, $\Sigma$, of /symbols/.
 
-A /history/ is a finite sequence, $(\sigma_1, \sigma_2, \dotsc, \sigma_N)$, of
-symbols from $\Sigma$. The empty history is written $\e$. The
-/concatenation/ of two histories $h$ and $g$, written $hg$, consists of all the
+A /behaviour/ is a finite sequence, $\langle\sigma_1, \sigma_2, \dotsc, \sigma_N\rangle$, of
+symbols from $\Sigma$. The empty behaviour is written $\e$. The
+/concatenation/ of two behaviours $h$ and $g$, written $hg$, consists of all the
 symbols of $h$ followed by all the symbols of $g$. Clearly $\e f = f\e = f$ for
-any history $f$. The /alphabet/ of $h$, written $\az(h)$, is the set of all
+any behaviour $f$. The /alphabet/ of $h$, written $\az(h)$, is the set of all
 symbols that occur in $h$.
 
-A /behaviour/, $(B, \mathcal{A})$, is a set, $B$, of histories, together with a
+A /process/, $(B, \mathcal{A})$, is a set, $B$, of behaviours, together with a
 finite set of symbols $\mathcal{A}\subset\Sigma$, called the alphabet of $B$,
-such that $\az(h)\subset\mathcal{A}$ for every history $h\in B$. We often write
-$B$ for the behaviour where $\mathcal{A}$ is obvious.
+such that $\az(h)\subset\mathcal{A}$ for every behaviour $h\in B$. We often write
+$B$ for the process where $\mathcal{A}$ is obvious.
 
-Here are three special behaviours: 
-1. The behaviour $\void = \emptyset$, consisting of no sequences.
-2. The behaviour $\unit = \{\e\}$, consisting only of the empty sequence.
-3. The behaviour $\all = \mathcal{A}^\ast$, consisting of all possible finite
+Here are three special processes: 
+1. The process $\void = \emptyset$, consisting of no sequences.
+2. The process $\unit = \{\e\}$, consisting only of the empty sequence.
+3. The process $\all = \mathcal{A}^\ast$, consisting of all possible finite
    sequences of symbols from some alphabet $\mathcal{A}$.[fn:kleene]
 
-A behaviour consisting of a single history describes a machine whose entire
-computation is known. If there are multiple histories then there are, in some
-sense, multiple possible paths of computation. Given two behaviours $P$ and $Q$
-we say that $P$ is /more specific/ than $Q$ if $P\subset Q$. That is, $P$ is
-more specific than $Q$ if every history in $P$ also occurs in $Q$.
+The process $\void$ is sometimes known as “error.” The process $\unit$ is
+sometimes called “STOP” or “HALT.”
 
-Later, we deal with behaviours that represent “the environemnt”, the part of the
+A process consisting of a single behaviour describes a machine whose entire
+computation is known. If there are multiple behaviours then there are, in some
+sense, multiple possible paths of computation. Given two processes $P$ and $Q$
+we say that $P$ is /more specific/ than $Q$ if $P\subset Q$. That is, $P$ is
+more specific than $Q$ if every behaviour in $P$ also occurs in $Q$.
+
+Later, we deal with processes that represent “the environemnt”, the part of the
 world external to the programs we write but which interact with those programs. 
 
-The intended interpretation of all this is that a history is a particular
-computation of a state machine. A behaviour is the set of all possible
+The intended interpretation of all this is that a behaviour is a particular
+computation of a state machine. A process is the set of all possible
 computations of that machine. 
 
 It may be that some computation is known “only up to a point.” Let $h$ be a
-history. A /prefix/ of $h$ is a finite sequence of symbols $p$ such that $h =
-ps$ for some history $s$. If $p$ is a prefix of $h$ we write $p \leq h$.
+behaviour. A /prefix/ of $h$ is a finite sequence of symbols $p$ such that $h =
+ps$ for some behaviour $s$. If $p$ is a prefix of $h$ we write $p \leq h$.
 
 The /length/ of a sequence, $h$, is the number of symbols in the sequence, which
 we denote $|h|$.  For example, $|\e| = 0$. Note that $p \leq h$ implies $|p|
 \leq |h|$.
 
-For $B$ a behaviour, the /known history/ of $B$ is the longest sequence $p$ such
-that $p \leq h$ for all $h \in B$. The known history is unique: if $p$ and $q$
-are two known histories, then $p\leq q$ and $q\leq p$ implies that $|p| = |q|$,
+For $B$ a process, the /known behaviour/ of $B$ is the longest sequence $p$ such
+that $p \leq h$ for all $h \in B$. The known behaviour is unique: if $p$ and $q$
+are two known behaviours, then $p\leq q$ and $q\leq p$ implies that $|p| = |q|$,
 so if, say, $p=qs$, we must have $s = \e$. We write $\known(B)$ for the known
-history of $B$. 
+behaviour of $B$. 
 
 The situation we wish to understand is this. There is given to us an
-increasingly specific sequence of behaviours, $B_1 \supset B_2 \supset B_3
+increasingly specific sequence of processes, $B_1 \supset B_2 \supset B_3
 \dotsb$. This sequence is typically the result of “the interaction of the
 machine with its environment up to time $t$.” We wish to compute the
-corresponding sequence of known histories, $\known(B_1), \known(B_2), \dotsc$,
+corresponding sequence of known behaviours, $\known(B_1), \known(B_2), \dotsc$,
 representing “the computation of the machine up to time $t$.”
 
-The known history is supposed to be “known.” What we mean by this is that a
-later evolution of the behaviour should not change the known history. Luckily,
-we have the following trivial result: For behaviours $P$ and $Q$,
+The known behaviour is supposed to be “known.” What we mean by this is that a
+later evolution of the process should not change the known behaviour. Luckily,
+we have the following trivial result: For processes $P$ and $Q$,
 \begin{equation}
   P \supset Q \Rightarrow \known(P) \leq \known(Q).
 \end{equation}
-(This follows, because if $\Omega(P)$ is a prefix of every history in $P$, and
-$Q$ is a subset of $P$, then $\Omega(P)$ must also be a prefix of every history
-in $Q$.) In other words, as long as the sequence of behaviours is increasingly
-specific, then known history will not be rewritten.
+(This follows, because if $\known(P)$ is a prefix of every behaviour in $P$, and
+$Q$ is a subset of $P$, then $\known(P)$ must also be a prefix of every behaviour
+in $Q$.) In other words, as long as the sequence of processes is increasingly
+specific, then known behaviour will not be rewritten.
 
-Now, given the increasing nature of the known history, an /efficient/ machine
-should not need to recompute the full history each time a new behaviour is
-given. Instead, it should take in the “change in behaviour” and output the “change
-in the known history”.
+** TODO: Define derivatives
 
+* Computation (I)
 
+Given the increasing nature of the known behaviour, an /efficient/ machine should
+not need to recompute the full behaviour each time a new process is
+given. Instead, it should take in the “change in process” and output the
+“change in the known behaviour”.
 
-* Behaviour algebra
+The process is straightforward. Let $(B, \mathcal{A})$ be a process such that
+$\known(B) = \e$ (where now we are explicitly noting the alphabet). And suppose
+$(B', \mathcal{A}')$ is a more specific process, so that $B' \subset B$ (and
+presumably $\mathcal{A'} \subset \mathcal{A}$, although I'm not entirely sure
+how alphabets ought to work.) Set $p = \e$.
 
-Let $M$ and $N$ be behaviours. By 
+Now, since $\mathcal{A}$ is finite (by the definition of a process), there are
+at most finitely many symbols that are the prefix of a behaviour in $B'$. If there
+is precisely one, say $a$, then set $p\leftarrow p\,\langle a\rangle$, replace $B'$
+with $\partial_{a}B'$, and repeat the process.
+
+If there is more than one, then we cannot deduce any further known behaviour: the
+known behaviour is then the value of $p$ and the program “pauses”.
+
+Otherwise $B$ is either $\void$ or $\unit$. $\void$ is only possible at the
+first step: in this case, the program has no way to make progress and halts with
+no further computation possible. If it is $\unit$, then the result is $p$ and the
+program halts.
+
+* Constructing processes
+
+We now consider ways of representing, by finite means, a certain subclass of
+processes; one which nevertheless contains processes with infinitely many
+behaviours. This section is essentially a recap of the subject of regular
+languages, albeit one with a slight difference in emphasis.
+
+Let $P$ be a process and $\alpha$ a symbol. Then
 \begin{equation}
-M\then N 
+\alpha \to P
 \end{equation}
-(pronounced “$M$ then $N$”) we mean the behaviour whose histories consist of all
-those that can be obtained as a sequence in $M$ concatenated with a sequence in
-$N$. Note that the “semicolon operator” is associative but not commutative.
+is the process whose behaviours are $\alpha$ followed by a behaviour in $P$.
 
-We have immediately that
-\begin{equation}
-M\then\unit = \unit\then M = M
-\end{equation}
-and
-\begin{equation}
-M\then\void = \void\then M = \void
-\end{equation}
-for any behaviour $M$, except the special case $\void\then \unit = \unit \then
-\void = \void$. 
+As a special case, we have that $\alpha\to \unit = \langle \alpha \rangle$. By
+repeated application of “$\to$” we may write down a process
+consisting of any single behaviour. Note that $\alpha\to \void = \void$.
 
-As a special case, suppose $M$ is a behaviour and $\alpha$ is a symbol. Then 
+Let $P$ and $Q$ be processes. By
 \begin{equation}
-\alpha \to M
+P\while Q
 \end{equation}
-is the behaviour consisting of all histories in $M$, prefixed
-with the symbol $\alpha$.
+we mean the process whose behaviours are the setwise union of the behaviours of
+$P$ and $Q$. For example, $(\alpha\to\beta\to \unit)\while (\gamma\to \unit)$ is the
+process containing two behaviours: the sequences $\langle \alpha, \beta\rangle$
+and $\langle \gamma \rangle$. 
 
-Let $M$ and $N$ be behaviours as above. Then by
-\begin{equation}
-M \sync N
-\end{equation}
-we mean the behaviour whose histories are those that occur in both $M$ and
-$N$. The operator $\sync$ is associative and---unlike the semicolon
-operator---commutative. We also have the identities:
-\begin{equation}
-M\sync \void = \void\sync M = \void,
-\end{equation}
-\begin{equation}
-M\sync \all = \all\sync M = M,
-\end{equation}
-(as long as $M\neq \void$), and
-\begin{equation}
-M \sync M = M.
-\end{equation}
-
-The distributive law only “works” in one direction:
-\begin{equation}
-P\then (M\sync N) \subseteq (P\then M)\sync (P\then N) 
-\end{equation}
-
-This way is certainly true, because an element of the lhs is a history in $P$,
-say $p$, followed by a history in both $M$ and $N$, say $q$, so the history $pq$
-is certainly in both behaviours on the rhs.
-
-Conversely, suppose $P = \{\e, \alpha\}$, $M = \{\alpha, \alpha\beta\}$, and $N
-= \{\beta\}$. Then both $P\then M$ and $P\then N$ include the history
-$\alpha\beta$ (coming from $\e\,\alpha\beta$ in the one case and $\alpha\,\beta$
-in the other). But $M\sync N = \void$, so the lhs is empty. 
-
-Note that insisting that behaviours were prefix-closed would not have helped us
-here since the argument goes through with $P = \{\e, \alpha\}$, $M = \{\e, \alpha,
-\alpha\beta\}$, and $N = \{\e, \beta\}$. In this case $M\sync N = \{\e\}$, which
-still does not include $\alpha\beta$.
-
-Let $M$ and $N$ be behaviours as above. By
-\begin{equation}
-M\while N
-\end{equation}
-we mean the behaviour whose histories are the set union of the histories of $M$
-and $N$. The operator $\while$ is associative and commutative.
-
-We have the identities
-\begin{equation}
-M\while \void = \void\while M = M
-\end{equation}
-and
-\begin{equation}
-M\while M = M,  
-\end{equation}
-as well as the laws
-\begin{equation}
-P \then (M\while N) = (P\then M) \while (P\then N),  
-\end{equation}
-and
-\begin{equation}
-P \sync (M\while N) = (P\sync M) \while (P\sync N).  
-\end{equation}
-To see the first of these laws, note that a history on the lhs is a history in
-$P$ followed by a history in either $M$ or $N$, say $m\in M$, wlog; whereas the
-rhs is either a history in $P$ followed by one in $M$ or a history in $P$
-followed by one in $M$.
-
-Let $P$ be a behaviour and $\alpha$ a symbol. The /derivative/ of $P$ with
-respect to $\alpha$, written $\partial_\alpha P$ is the set of all histories
-$(\beta_1, \beta_2, \dotsc)$ for which $(\alpha, \beta_1, \beta_2, \dotsc)$ is a
-history in $P$. That is, it is all histories beginning with $\alpha$, without
-the $\alpha$. 
-
-Given a finite sequence $(\alpha_1, \alpha_2, \dots, \alpha_N)$, the derivative
-$\partial_{\alpha_1\dotsb\alpha_N} P$ is defined as
+The operator $\while$ is clearly associative, $P\while (Q\while R) = (P\while Q)
+\while R$, as well as commutative, $P\while Q = Q\while P$. Furthermore, we have
+the identities
 \begin{equation*}
-\partial_{\alpha_1\dotsb \alpha_N} P = \partial_{\alpha_N}\dotsb \partial_{\alpha_2}\partial_{\alpha_1} P,
+P\while \void = \void\while P = P
 \end{equation*}
-where in addition we define $\partial_\e P = P$. Note that $\partial_\alpha \void = \void$ and, for
-any $\alpha\neq\e$, $\partial_\alpha\unit = \void$.
-
-If $M$ is a behaviour, a /prefix/ of $M$ is a history $p$ such that there exists
-a behaviour $S$ for which
+and
 \begin{equation*}
-M = \{p\}\then S,
-\end{equation*} 
-where $\{p\}$ is the behaviour consisting solely of the history $p$. In other
-words, every history in $M$ begins with the sequence of symbols in $p$. 
+P\while P = P.  
+\end{equation*}
 
-If $p$ and $p'$ are prefixes of $M$, then clearly either they are equal or one
-is a prefix of the another (in the sense of sequences). 
+I propose to think of a single behaviour as representing a sort of “deterministic
+machine,” one that has a single computation path, and to think of a process as
+“a collection of machines, all operating in parallel.” In this model, that
+collection of machines is /synchronous/: they all process the same symbols in
+lockstep.
+
+Using a combination of $\to$ and $\while$, we can clearly write down all finite
+processes but no infinite ones. Let $P$ and $Q$ be processes. By
+\begin{equation}
+P\then Q 
+\end{equation}
+(pronounced “$P$ then $Q$”) we mean the process whose behaviours consist of all
+sequences in $P$ concatenated with a sequence in $Q$. 
+
+Note that the “semicolon operator” is associative, $P\then (Q\then R) = (P\then
+Q)\then R$, but not commutative. We also have the identities:
+\begin{equation*}
+P\then\unit = \unit\then P = P
+\end{equation*}
+for all $P\neq \void$; and
+\begin{equation*}
+P\then\void = \void\then P = \void.
+\end{equation*}
+
+To complete the usual set of regular language operators, we need the Kleene
+star. Let $P$ be a process. By  
+\begin{equation}
+P^*
+\end{equation}
+we mean the process whose behaviours consist of the concatenation of all finite
+sequences (of any length) of behaviours from $P$. That is,
+\begin{equation*}
+P^* \equiv \unit \while P \while (P\then P) \while (P\then P\then P) \while \dotsb.
+\end{equation*}
+Note that $P^*$ is infinite if $P$ contains any non-empty behaviour; however,
+it does not itself contain any “infinite behaviours.”
+
+A process built using finite combinations of symbols, $\unit$, ‘$\to$’,
+‘$\while$’, ‘$\then$’, and ‘$\star$‘ is called a /regular process/. It is
+well-known that not all processes are regular. The canonical example of a
+non-regular process is the set of all finite sequences of (say) 1 and 0
+containing as many 1s as 0s (and no other sequences). To see this, let the
+/startup length/ of any sequence be the number of contiguous 1s that occur
+strating at the beginning of the sequence. Note that the startup legnths in the
+non-regular process above are unbounded. However, (1) the startup lengths of the
+behaviours in any finite process are bounded; (2) combining process with any of
+the operators except $*$ results in a process with a bounded startup length, and
+one that is no less than the bounds of the operands; and (3) applying the Kleene
+star to any process of bounded startup length gives a process with the /same/
+bound, unless the original process contained a behaviour solely consisting of
+1s. Thus, since any regular process is obtained as a finite set of the
+operations above, it must either have bounded startup length or contain a
+behaviour whose startup length is infinite, and neither of these is true of the
+claimed non-regular process above.
+
+The Kleene star is a sort of “fixed point” or “limit” operator, in the sense
+that $(P^*)^* = P^*$. It can be used to find solutions to certain recursive
+equations. For example, suppose we are looking for a process $P$ such that
+\begin{equation*}
+P = \unit \while (\alpha\to P).
+\end{equation*}
+One solution to this equation is given by $P = (\alpha\to\unit)^*$. That is, the
+process consisting of sequences of $\alpha$ of any finite length (including zero).
 
 
-* Interpretation
 
-A behaviour is the set of possible interactions of a program. A history is a
-particular interaction. When there is only one history possible, that is the
-execution path of the program.
+Note that, perhaps surprisingly, the equation:
+\begin{equation*}
+P = \alpha\to P
+\end{equation*}
+has /no/ solutions in the space of processes, regular or otherwise. If one were
+to allow infinite behaviours, one might say that 
+\begin{equation*}
+P = \alpha \to \alpha \to \alpha \to \dotsb
+\end{equation*}
+but this is not a process as we have defined them.
+
+ 
+
+
+** Process algebra
+
+ Let $M$ and $N$ be processes. By 
+ As a special case, suppose $M$ is a process and $\alpha$ is a symbol. Then 
+ \begin{equation}
+ \alpha \to M
+ \end{equation}
+ is the process consisting of all behaviours in $M$, prefixed
+ with the symbol $\alpha$.
+
+ Let $M$ and $N$ be processes as above. Then by
+ \begin{equation}
+ M \sync N
+ \end{equation}
+ we mean the process whose behaviours are those that occur in both $M$ and
+ $N$. The operator $\sync$ is associative and---unlike the semicolon
+ operator---commutative. We also have the identities:
+ \begin{equation}
+ M\sync \void = \void\sync M = \void,
+ \end{equation}
+ \begin{equation}
+ M\sync \all = \all\sync M = M,
+ \end{equation}
+ (as long as $M\neq \void$), and
+ \begin{equation}
+ M \sync M = M.
+ \end{equation}
+
+ The distributive law only “works” in one direction:
+ \begin{equation}
+ P\then (M\sync N) \subseteq (P\then M)\sync (P\then N) 
+ \end{equation}
+
+ This way is certainly true, because an element of the lhs is a behaviour in $P$,
+ say $p$, followed by a behaviour in both $M$ and $N$, say $q$, so the behaviour $pq$
+ is certainly in both processes on the rhs.
+
+ Conversely, suppose $P = \{\e, \alpha\}$, $M = \{\alpha, \alpha\beta\}$, and $N
+ = \{\beta\}$. Then both $P\then M$ and $P\then N$ include the behaviour
+ $\alpha\beta$ (coming from $\e\,\alpha\beta$ in the one case and $\alpha\,\beta$
+ in the other). But $M\sync N = \void$, so the lhs is empty. 
+
+ Note that insisting that processes were prefix-closed would not have helped us
+ here since the argument goes through with $P = \{\e, \alpha\}$, $M = \{\e, \alpha,
+ \alpha\beta\}$, and $N = \{\e, \beta\}$. In this case $M\sync N = \{\e\}$, which
+ still does not include $\alpha\beta$.
+
+ Let $M$ and $N$ be processes as above. By
+ \begin{equation}
+ M\while N
+ \end{equation}
+ we mean the process whose behaviours are the set union of the behaviours of $M$
+ and $N$. The operator $\while$ is associative and commutative.
+
+ We have the identities
+ \begin{equation}
+ M\while \void = \void\while M = M
+ \end{equation}
+ and
+ \begin{equation}
+ M\while M = M,  
+ \end{equation}
+ as well as the laws
+ \begin{equation}
+ P \then (M\while N) = (P\then M) \while (P\then N),  
+ \end{equation}
+ and
+ \begin{equation}
+ P \sync (M\while N) = (P\sync M) \while (P\sync N).  
+ \end{equation}
+ To see the first of these laws, note that a behaviour on the lhs is a behaviour in
+ $P$ followed by a behaviour in either $M$ or $N$, say $m\in M$, wlog; whereas the
+ rhs is either a behaviour in $P$ followed by one in $M$ or a behaviour in $P$
+ followed by one in $M$.
+
+ Let $P$ be a process and $\alpha$ a symbol. The /derivative/ of $P$ with
+ respect to $\alpha$, written $\partial_\alpha P$ is the set of all behaviours
+ $(\beta_1, \beta_2, \dotsc)$ for which $(\alpha, \beta_1, \beta_2, \dotsc)$ is a
+ behaviour in $P$. That is, it is all behaviours beginning with $\alpha$, without
+ the $\alpha$. 
+
+ Given a finite sequence $(\alpha_1, \alpha_2, \dots, \alpha_N)$, the derivative
+ $\partial_{\alpha_1\dotsb\alpha_N} P$ is defined as
+ \begin{equation*}
+ \partial_{\alpha_1\dotsb \alpha_N} P = \partial_{\alpha_N}\dotsb \partial_{\alpha_2}\partial_{\alpha_1} P,
+ \end{equation*}
+ where in addition we define $\partial_\e P = P$. Note that $\partial_\alpha \void = \void$ and, for
+ any $\alpha\neq\e$, $\partial_\alpha\unit = \void$.
+
+ If $M$ is a process, a /prefix/ of $M$ is a behaviour $p$ such that there exists
+ a process $S$ for which
+ \begin{equation*}
+ M = \{p\}\then S,
+ \end{equation*} 
+ where $\{p\}$ is the process consisting solely of the behaviour $p$. In other
+ words, every behaviour in $M$ begins with the sequence of symbols in $p$. 
+
+ If $p$ and $p'$ are prefixes of $M$, then clearly either they are equal or one
+ is a prefix of the another (in the sense of sequences). 
+
+
 
 * Reduction relations
 
-- Any history is either $\e$, or $\alpha\to h$ for some symbol $\alpha$ and
-  history $h$.
+- Any behaviour is either $\e$, or $\alpha\to h$ for some symbol $\alpha$ and
+  behaviour $h$.
 
 \begin{equation*}
 (\alpha \to M) \sync (\beta \to N) =
@@ -224,12 +342,12 @@ execution path of the program.
   \end{cases}
 \end{equation*}
 
-- A behaviour consisting of a single history is called /linear:/ it represents a
-  deterministic program that just emits the symbols in that history.
+- A process consisting of a single behaviour is called /linear:/ it represents a
+  deterministic program that just emits the symbols in that behaviour.
 
-- Sometimes a behaviour is “linear up to a point”. The /longest common prefix/
-  of a behaviour is the longest history $h$ for which $h$ is a prefix of that
-  behaviour.
+- Sometimes a process is “linear up to a point”. The /longest common prefix/
+  of a process is the longest behaviour $h$ for which $h$ is a prefix of that
+  process.
 
 
 
@@ -237,7 +355,7 @@ execution path of the program.
 
 * Temporal structure and causality
 
-Is there such a thing as non-deterministic behaviour? That would look like a
+Is there such a thing as non-deterministic process? That would look like a
 machine that chose one path only to later find that it “ought” to have taken the
 other path. For example, if the environment offered two choices, and the machine
 took one of these, leading to a block later. However, here, we “ask the machine
@@ -248,8 +366,8 @@ choices”), that had better not block the /environment/ from progressing,
 otherwise everything will stop. The problem is that the environment doesn't, in
 general, provide us with all choices. 
 
-What does it mean for the behaviour of the environment to be “known up to time
-$\tau$”? Let $B$ be a behaviour and $E$ be the behaviour of the environment. I
+What does it mean for the process of the environment to be “known up to time
+$\tau$”? Let $B$ be a process and $E$ be the process of the environment. I
 guess it means:
 
 1. For every $e \in E$ there is some $h \in B$ such that $h$ is a prefix of $e$;
@@ -259,15 +377,15 @@ guess it means:
 3. There is an integer $\tau$ such that $|h| \geq \tau$ for every $h \in B$. 
 
 How do we say, “we don't yet know what specific behavoiur the environment will
-exhibit (let alone which history will be chosen) but we do know that it will be
-such as to ensure that there is also at least one possible history.”
+exhibit (let alone which behaviour will be chosen) but we do know that it will be
+such as to ensure that there is also at least one possible behaviour.”
 
-We need some notion (possibly the same as above) of “this behaviour has some
-other behaviour as a prefix.”
+We need some notion (possibly the same as above) of “this process has some
+other process as a prefix.”
 
 The general idea is:
-- The environment is specified as a behaviour, $E_t$;
-- We compute the intersection of $E_t$ with the machine's behaviour, to get
+- The environment is specified as a process, $E_t$;
+- We compute the intersection of $E_t$ with the machine's process, to get
   $O_t$ ($O$ for output).
 - We compute, in particular, the longest common prefix of $O_t$, say $h_t$. 
 - A new environment is specified, $E_{t+1}$, such that
@@ -280,7 +398,7 @@ E_{t+1} \subset E_t.
 
 ** What's left?
 
-What's left is to specify the ways of writing down behaviours and the
+What's left is to specify the ways of writing down processes and the
 computation on these of the previous steps. 
 
 * Usable programs
@@ -289,23 +407,12 @@ computation on these of the previous steps.
 
 * Todo
 
-** Prefix-closure
-
-What if the behaviours are prefix-closed? 
-
-- Does the distributive law now hold? (No.)
-- Should we redefine $\sync$ to be “intersect the prefix”? 
-- Are the operators strict (and do they preserve prefix-closure)?
-
-** Strictness
-
-- Should we redefine behaviour to include $\e$ always? 
-  No: some programs insist on a certain prefix.
-
 ** Non-determinism
 
-- “Compile” behaviours for “parallel machines”. Then, when the result runs on
+- “Compile” processes for “parallel machines”. Then, when the result runs on
   only one machine, run it. 
+
+** "Hiding" symbols
 
 * Footnotes
 
