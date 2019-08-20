@@ -84,6 +84,8 @@ specific, then known behaviour will not be rewritten.
 
 ** TODO: Define derivatives
 
+And also maybe change the notation from $\partial_a$ to $a^{-1}$.
+
 * Computation (I)
 
 Given the increasing nature of the known behaviour, an /efficient/ machine should
@@ -153,8 +155,7 @@ machine,” one that has a single computation path, and to think of a process as
 collection of machines is /synchronous/: they all process the same symbols in
 lockstep.
 
-Using a combination of $\to$ and $\while$, we can clearly write down all finite
-processes but no infinite ones. Let $P$ and $Q$ be processes. By
+Let $P$ and $Q$ be processes. By
 \begin{equation}
 P\then Q 
 \end{equation}
@@ -171,8 +172,21 @@ for all $P\neq \void$; and
 P\then\void = \void\then P = \void.
 \end{equation*}
 
-To complete the usual set of regular language operators, we need the Kleene
-star. Let $P$ be a process. By  
+Now that we have multiple operators, we can ask about distributivity. In fact:
+\begin{equation*}
+P \then (Q \while R) = P\then Q \while P\then R
+\end{equation*}
+and
+\begin{equation*}
+P \then (Q \while R) = P\then Q \while P\then R
+\end{equation*}
+(Q \while R)\then P = Q\then P \while R\then P. 
+
+
+
+Using a combination of $\to$ and $\while$, we can clearly write down all finite
+processes but no infinite ones. To complete the usual set of regular language
+operators, we need the Kleene star. Let $P$ be a process. By
 \begin{equation}
 P^*
 \end{equation}
@@ -211,7 +225,13 @@ P = \unit \while (\alpha\to P).
 One solution to this equation is given by $P = (\alpha\to\unit)^*$. That is, the
 process consisting of sequences of $\alpha$ of any finite length (including zero).
 
+** TODO: Maybe replace all standalone definitions with the set version?
 
+** TODO: Arden's lemma
+
+** TODO: Monotinicity?
+
+** TODO: What does a least fixed-point operator look like?
 
 Note that, perhaps surprisingly, the equation:
 \begin{equation*}
