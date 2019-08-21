@@ -16,12 +16,12 @@
 
 Fix, once and for all, an infinite set, $\Sigma$, of /symbols/.
 
-A /behaviour/ is a finite sequence, $\langle\sigma_1, \sigma_2, \dotsc, \sigma_N\rangle$, of
-symbols from $\Sigma$. The empty behaviour is written $\e$. The
-/concatenation/ of two behaviours $h$ and $g$, written $hg$, consists of all the
-symbols of $h$ followed by all the symbols of $g$. Clearly $\e f = f\e = f$ for
-any behaviour $f$. The /alphabet/ of $h$, written $\az(h)$, is the set of all
-symbols that occur in $h$.
+A /behaviour/ is a finite sequence, $\langle\sigma_1, \sigma_2, \dotsc,
+\sigma_N\rangle$, of symbols from $\Sigma$. The empty behaviour is written
+$\e$. The /concatenation/ of two behaviours $h$ and $g$, written $hg$, consists
+of all the symbols of $h$ followed by all the symbols of $g$. Clearly $\e f =
+f\e = f$ for any behaviour $f$. The /alphabet/ of $h$, written $\az(h)$, is the
+set of all symbols that occur in $h$.
 
 A /process/, $(B, \mathcal{A})$, is a set, $B$, of behaviours, together with a
 finite set of symbols $\mathcal{A}\subset\Sigma$, called the alphabet of $B$,
@@ -37,13 +37,14 @@ Here are three special processes:
 The process $\void$ is sometimes known as “error.” The process $\unit$ is
 sometimes called “STOP” or “HALT.”
 
-A process consisting of a single behaviour describes a machine whose entire
-computation is known. If there are multiple behaviours then there are, in some
-sense, multiple possible paths of computation. Given two processes $P$ and $Q$
-we say that $P$ is /more specific/ than $Q$ if $P\subset Q$. That is, $P$ is
-more specific than $Q$ if every behaviour in $P$ also occurs in $Q$.
+A process consisting of a single behaviour is called a /constant/ process and
+describes a machine whose entire computation is known. If there are multiple
+behaviours then there are, in some sense, multiple possible paths of
+computation. Given two processes $P$ and $Q$ we say that $P$ is /more specific/
+than $Q$ if $P\subset Q$. That is, $P$ is more specific than $Q$ if every
+behaviour in $P$ also occurs in $Q$.
 
-Later, we deal with processes that represent “the environemnt”, the part of the
+Later, we deal with processes that represent “the environment”, the part of the
 world external to the programs we write but which interact with those programs. 
 
 The intended interpretation of all this is that a behaviour is a particular
@@ -119,27 +120,28 @@ processes; one which nevertheless contains processes with infinitely many
 behaviours. This section is essentially a recap of the subject of regular
 languages, albeit one with a slight difference in emphasis.
 
-Let $P$ be a process and $\alpha$ a symbol. Then
+Let $P$ be a process and $\alpha$ a symbol. Then $\alpha \to P$ is the process
+whose behaviours are $\alpha$ followed by a behaviour in $P$:
 \begin{equation}
-\alpha \to P
+  \alpha \to P \equiv \{ \langle \alpha, \pi_1, \pi_2, \dotsc \rangle
+  \mid \langle \pi_1, \pi_2, \dotsc \rangle \in P \} 
 \end{equation}
-is the process whose behaviours are $\alpha$ followed by a behaviour in $P$.
 
-As a special case, we have that $\alpha\to \unit = \langle \alpha \rangle$. By
-repeated application of “$\to$” we may write down a process
-consisting of any single behaviour. Note that $\alpha\to \void = \void$.
 
-Let $P$ and $Q$ be processes. By
+As special cases, we have that $\alpha\to \unit = \langle \alpha \rangle$ and
+$\alpha\to \void = \void$. By repeated application of “$\to$” we may clearly write down
+any constant process.
+
+Let $P$ and $Q$ be processes. By $P\while Q$ we mean the process whose
+behaviours are the setwise union of the behaviours of $P$ and $Q$. That is,
 \begin{equation}
-P\while Q
+P\while Q \equiv P \cup Q.
 \end{equation}
-we mean the process whose behaviours are the setwise union of the behaviours of
-$P$ and $Q$. For example, $(\alpha\to\beta\to \unit)\while (\gamma\to \unit)$ is the
+For example, $(\alpha\to\beta\to \unit)\while (\gamma\to \unit)$ is the
 process containing two behaviours: the sequences $\langle \alpha, \beta\rangle$
 and $\langle \gamma \rangle$. 
 
-The operator $\while$ is clearly associative, $P\while (Q\while R) = (P\while Q)
-\while R$, as well as commutative, $P\while Q = Q\while P$. Furthermore, we have
+The operator $\while$ is clearly associative and commutative. Furthermore, we have
 the identities
 \begin{equation*}
 P\while \void = \void\while P = P
@@ -149,21 +151,20 @@ and
 P\while P = P.  
 \end{equation*}
 
-I propose to think of a single behaviour as representing a sort of “deterministic
-machine,” one that has a single computation path, and to think of a process as
-“a collection of machines, all operating in parallel.” In this model, that
-collection of machines is /synchronous/: they all process the same symbols in
-lockstep.
+I propose to think of a constant process as representing a sort of
+“deterministic machine,” one that has a single computation path, and to think of
+a process as “a collection of machines, all operating in parallel.” In this
+model, that collection of machines is /synchronous/: they all process the same
+symbols in lockstep.
 
-Let $P$ and $Q$ be processes. By
+Let $P$ and $Q$ be processes. By $P\then Q$ (pronounced “$P$ then $Q$”) we mean
+the process whose behaviours consist of all sequences in $P$ concatenated with a
+sequence in $Q$. That is,
 \begin{equation}
-P\then Q 
+P\then Q \equiv \{ pq \mid p \in P \wedge q \in Q \}.
 \end{equation}
-(pronounced “$P$ then $Q$”) we mean the process whose behaviours consist of all
-sequences in $P$ concatenated with a sequence in $Q$. 
-
-Note that the “semicolon operator” is associative, $P\then (Q\then R) = (P\then
-Q)\then R$, but not commutative. We also have the identities:
+Note that the “semicolon operator” is associative but not commutative. We also
+have the identities:
 \begin{equation*}
 P\then\unit = \unit\then P = P
 \end{equation*}
@@ -178,28 +179,22 @@ P \then (Q \while R) = P\then Q \while P\then R
 \end{equation*}
 and
 \begin{equation*}
-P \then (Q \while R) = P\then Q \while P\then R
-\end{equation*}
 (Q \while R)\then P = Q\then P \while R\then P. 
-
-
+\end{equation*}
 
 Using a combination of $\to$ and $\while$, we can clearly write down all finite
 processes but no infinite ones. To complete the usual set of regular language
-operators, we need the Kleene star. Let $P$ be a process. By
-\begin{equation}
-P^*
-\end{equation}
-we mean the process whose behaviours consist of the concatenation of all finite
-sequences (of any length) of behaviours from $P$. That is,
+operators, we need the Kleene star. Let $P$ be a process. By $P^*$ we mean the
+process whose behaviours consist of the concatenation of all finite sequences
+(of any length) of behaviours from $P$. That is,
 \begin{equation*}
 P^* \equiv \unit \while P \while (P\then P) \while (P\then P\then P) \while \dotsb.
 \end{equation*}
 Note that $P^*$ is infinite if $P$ contains any non-empty behaviour; however,
 it does not itself contain any “infinite behaviours.”
 
-A process built using finite combinations of symbols, $\unit$, ‘$\to$’,
-‘$\while$’, ‘$\then$’, and ‘$\star$‘ is called a /regular process/. It is
+A process built using finite combinations of symbols, $\unit$, $\to$,
+$\while$, $\then$, and $\star$ is called a /regular process/. It is
 well-known that not all processes are regular. The canonical example of a
 non-regular process is the set of all finite sequences of (say) 1 and 0
 containing as many 1s as 0s (and no other sequences). To see this, let the
@@ -216,24 +211,36 @@ operations above, it must either have bounded startup length or contain a
 behaviour whose startup length is infinite, and neither of these is true of the
 claimed non-regular process above.
 
-The Kleene star is a sort of “fixed point” or “limit” operator, in the sense
-that $(P^*)^* = P^*$. It can be used to find solutions to certain recursive
-equations. For example, suppose we are looking for a process $P$ such that
+The Kleene star is a sort of “fixed point” or “limit” operator, in the following
+sense. Fix a process $A$. For any process $P$, consider the operation on $P$
+that is “prefix with $A$ and add $\unit$.” In other words,
 \begin{equation*}
-P = \unit \while (\alpha\to P).
+P \mapsto \unit \while A\then P.
 \end{equation*}
-One solution to this equation is given by $P = (\alpha\to\unit)^*$. That is, the
-process consisting of sequences of $\alpha$ of any finite length (including zero).
+A fixed point of this operation is a $P$ which remains unchanged by it; that is,
+a solution to $P = \unit \while A\then P$. And in fact one solution is $P =
+A^*$, for, on the right-hand side we have
+\begin{equation*}
+\begin{aligned}
+  \unit \while A\then P &= \unit \while A\then A^*  \\
+  &= \unit \while \bigl(A \while (A\then A) \while\dotsb \bigr) \\
+  &= A^*,
+\end{aligned}
+\end{equation*}
+which is indeed $P$. In fact, there is a stronger result known as “Arden’s Lemma.”
 
-** TODO: Maybe replace all standalone definitions with the set version?
+/Arden's Lemma/: Fix processes $A$ and $B$. A solution to the equation
+\begin{equation*}
+P = A \while (B\then P),
+\end{equation*}
+is given by
+\begin{equation*}
+P = A\then B^*.
+\end{equation*}
+Furthermore, if $B$ does not contain $\e$ then the solution is unique; in any
+case, it is the minimal solution (in the sense of being the most specific). 
 
-** TODO: Arden's lemma
-
-** TODO: Monotinicity?
-
-** TODO: What does a least fixed-point operator look like?
-
-Note that, perhaps surprisingly, the equation:
+Perhaps surprisingly, the equation:
 \begin{equation*}
 P = \alpha\to P
 \end{equation*}
@@ -242,7 +249,19 @@ to allow infinite behaviours, one might say that
 \begin{equation*}
 P = \alpha \to \alpha \to \alpha \to \dotsb
 \end{equation*}
-but this is not a process as we have defined them.
+were a solution but this is not a process as we have defined them.
+
+
+
+
+
+* OLD
+
+
+** TODO: Monotonicity?
+
+** TODO: What does a least fixed-point operator look like?
+
 
  
 
@@ -346,6 +365,10 @@ but this is not a process as we have defined them.
 
  If $p$ and $p'$ are prefixes of $M$, then clearly either they are equal or one
  is a prefix of the another (in the sense of sequences). 
+
+
+
+
 
 
 
