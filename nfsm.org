@@ -29,8 +29,8 @@ such that $\az(h)\subset\mathcal{A}$ for every behaviour $h\in B$. We often writ
 $B$ for the process where $\mathcal{A}$ is obvious.
 
 Here are three special processes: 
-1. The process $\void = \emptyset$, consisting of no sequences.
-2. The process $\unit = \{\e\}$, consisting only of the empty sequence.
+1. The process $\void = \emptyset$, consisting of no behaviours.
+2. The process $\unit = \{\e\}$, consisting only of the empty behaviour.
 3. The process $\all = \mathcal{A}^\ast$, consisting of all possible finite
    sequences of symbols from some alphabet $\mathcal{A}$.[fn:kleene]
 
@@ -250,6 +250,8 @@ to allow infinite behaviours, one might say that
 P = \alpha \to \alpha \to \alpha \to \dotsb
 \end{equation*}
 were a solution but this is not a process as we have defined them.
+
+* Language
 
 
 
